@@ -3,9 +3,11 @@
 ## 1. 文档信息
 
 - 日期：2026-05-03
-- 阶段：MVP 设计稿
+- 阶段：MVP 设计定稿
 - 目标读者：产品经理、研发负责人、测试负责人、海外仓运营主管
-- 配套原型：[mockups/warehouse-monitor-prototypes.html](mockups/warehouse-monitor-prototypes.html)
+- 方案对比原型：[mockups/warehouse-monitor-prototypes.html](mockups/warehouse-monitor-prototypes.html)
+- 子页面原型：[mockups/warehouse-monitor-detail-pages.html](mockups/warehouse-monitor-detail-pages.html)
+- 最终低保真确认稿：[mockups/warehouse-monitor-final-lowfi.html](mockups/warehouse-monitor-final-lowfi.html)
 
 ## 2. 背景与问题
 

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海外仓运营监控 MVP 最终低保真原型</title>
+  <style>
+    :root {
+      --bg: #f3f3f1;
+      --panel: #ffffff;
+      --line: #222222;
+      --muted: #666666;
+      --soft: #ececea;
+      --soft-2: #ddddda;
+      --ink-light: #8a8a86;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.03), transparent 18%),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 35px,
+          rgba(0, 0, 0, 0.03) 35px,
+          rgba(0, 0, 0, 0.03) 36px
+        ),
+        var(--bg);
+      color: var(--line);
+      padding: 28px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin: 0;
+    }
+
+    .page {
+      max-width: 1520px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+
+    .intro,
+    .wireframe {
+      border: 2px solid var(--line);
+      background: var(--panel);
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .intro {
+      padding: 22px 24px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .intro p {
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 1040px;
+    }
+
+    .top-tags,
+    .page-index,
+    .status-row,
+    .kpi-row,
+    .anomaly-grid,
+    .detail-summary,
+    .filters,
+    .table-head,
+    .table-row,
+    .table-stack,
+    .layout-two-col,
+    .aside-stack,
+    .bars,
+    .bar-group,
+    .legend,
+    .micro-cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tag,
+    .chip,
+    .mini-status,
+    .badge,
+    .index-item,
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border: 1px solid var(--line);
+      padding: 5px 8px;
+      font-size: 12px;
+      background: var(--soft);
+    }
+
+    .top-tags {
+      grid-template-columns: repeat(3, max-content);
+      align-items: center;
+    }
+
+    .page-index {
+      grid-template-columns: repeat(4, max-content);
+      align-items: center;
+    }
+
+    .index-item {
+      background: #fff;
+    }
+
+    .wireframe {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .wireframe-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .wireframe-head-left,
+    .wireframe-head-right,
+    .panel,
+    .list-panel,
+    .aside-note,
+    .simple-card,
+    .summary-box,
+    .forecast-panel,
+    .footer-note {
+      display: grid;
+      gap: 8px;
+    }
+
+    .wireframe-head-left {
+      max-width: 860px;
+    }
+
+    .wireframe-head-left p,
+    .muted,
+    .small {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .wireframe-head-right {
+      min-width: 260px;
+    }
+
+    .status-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .mini-status,
+    .simple-card,
+    .list-panel,
+    .forecast-panel,
+    .summary-box,
+    .panel,
+    .aside-note,
+    .footer-note {
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .mini-status,
+    .simple-card,
+    .summary-box {
+      padding: 10px;
+      background: var(--soft);
+      width: auto;
+      display: grid;
+      justify-items: start;
+      gap: 4px;
+    }
+
+    .mini-status strong,
+    .simple-card strong,
+    .summary-box strong {
+      font-size: 18px;
+    }
+
+    .panel,
+    .forecast-panel,
+    .aside-note,
+    .footer-note,
+    .list-panel {
+      padding: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title h3 {
+      font-size: 15px;
+    }
+
+    .kpi-row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .anomaly-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .list-panel {
+      min-height: 220px;
+    }
+
+    .table-head,
+    .table-row {
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .table-head {
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--soft-2);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .table-row {
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--soft-2);
+    }
+
+    .home-columns {
+      grid-template-columns: 1.1fr 0.9fr 0.7fr 0.6fr;
+    }
+
+    .bars {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      align-items: end;
+      min-height: 130px;
+    }
+
+    .bar-group {
+      justify-items: center;
+      gap: 6px;
+    }
+
+    .bar {
+      width: 32px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      position: relative;
+      min-height: 70px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+    }
+
+    .bar::before,
+    .bar::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      background: var(--soft-2);
+    }
+
+    .bar::before {
+      bottom: 4px;
+    }
+
+    .bar::after {
+      bottom: 36px;
+    }
+
+    .legend {
+      grid-template-columns: repeat(3, max-content);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .layout-two-col {
+      grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.72fr);
+      align-items: start;
+    }
+
+    .detail-summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .filters {
+      grid-template-columns: repeat(4, max-content);
+      align-items: center;
+    }
+
+    .chip {
+      background: #fff;
+    }
+
+    .chip.active {
+      background: var(--soft);
+      font-weight: 600;
+    }
+
+    .crumb {
+      background: #fff;
+    }
+
+    .detail-outbound,
+    .detail-inbound,
+    .detail-shelving {
+      display: grid;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .detail-outbound {
+      grid-template-columns: 1fr 0.85fr 0.9fr 0.9fr 0.75fr 0.9fr 0.55fr;
+    }
+
+    .detail-inbound {
+      grid-template-columns: 0.85fr 0.75fr 0.5fr 0.5fr 0.5fr 0.8fr 0.8fr 0.7fr;
+    }
+
+    .detail-shelving {
+      grid-template-columns: 0.8fr 0.8fr 0.85fr 0.55fr 0.55fr 0.85fr 0.7fr 0.7fr;
+    }
+
+    .badge {
+      background: var(--soft);
+      padding: 4px 8px;
+    }
+
+    .aside-note ul,
+    .footer-note ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .micro-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      border-style: dashed;
+    }
+
+    @media (max-width: 1160px) {
+      body {
+        padding: 18px;
+      }
+
+      .status-row,
+      .kpi-row,
+      .anomaly-grid,
+      .detail-summary,
+      .layout-two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .filters,
+      .page-index {
+        grid-template-columns: repeat(2, max-content);
+      }
+    }
+
+    @media (max-width: 820px) {
+      .wireframe-head {
+        flex-direction: column;
+      }
+
+      .filters,
+      .page-index,
+      .top-tags,
+      .micro-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .home-columns,
+      .detail-outbound,
+      .detail-inbound,
+      .detail-shelving,
+      .status-row,
+      .kpi-row,
+      .detail-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bars {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="intro">
+      <div class="top-tags">
+        <span class="tag">最终确认版</span>
+        <span class="tag">低保真</span>
+        <span class="tag">单仓视角</span>
+      </div>
+      <h1>海外仓运营监控 MVP 最终低保真原型</h1>
+      <p>这版把已确认的最终方案收敛为一份汇总线框：1 个首页 + 3 个子页面，重点确认信息架构、字段层级、页面边界和页面之间的承接关系。视觉表现刻意降级到黑白灰，避免样式干扰判断。</p>
+      <div class="page-index">
+        <span class="index-item">01 首页</span>
+        <span class="index-item">02 出库异常明细页</span>
+        <span class="index-item">03 到仓不齐明细页</span>
+        <span class="index-item">04 上架异常明细页</span>
+      </div>
+    </section>
+
+    <article class="wireframe">
+      <div class="wireframe-head">
+        <div class="wireframe-head-left">
+          <span class="tag">01 首页</span>
+          <h2>轻总览 + 异常清单优先</h2>
+          <p>首页先回答今天整体压力，再把主管带到三类异常。这里保持“轻总览、重异常、简预估”的最终定位。</p>
+        </div>
+        <div class="wireframe-head-right">
+          <span class="crumb">页面目标：先看全局，再看异常，再看未来 7 天</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h3>顶部状态区</h3>
+          <span class="muted">数据 freshness 与提醒状态</span>
+        </div>
+        <div class="status-row">
+          <div class="mini-status">仓库<strong>LA-02</strong></div>
+          <div class="mini-status">最近同步<strong>10:00</strong></div>
+          <div class="mini-status">今日提醒<strong>58</strong></div>
+          <div class="mini-status">已超时<strong>18</strong></div>
+          <div class="mini-status">提醒渠道<strong>企微 + 邮件</strong></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h3>今日总览区</h3>
+          <span class="muted">4 张卡 + 1 句运营提示</span>
+        </div>
+        <div class="kpi-row">
+          <div class="simple-card">今日出库风险<strong>42</strong><span class="small">待出库 860 单，已超时 11 单</span></div>
+          <div class="simple-card">今日到仓风险<strong>6</strong><span class="small">待齐箱入库单 6 个</span></div>
+          <div class="simple-card">今日上架风险<strong>19</strong><span class="small">待完成上架 19 箱</span></div>
+          <div class="simple-card">今日货量压力<strong>42</strong><span class="small">42 箱 / 2.5 吨 / 15.8 m3</span></div>
+        </div>
+        <div class="footer-note">
+          <ul>
+            <li>今日运营提示：主要风险集中在出库，下午收货和上架压力同步抬升。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h3>三类异常清单区</h3>
+          <span class="muted">首页主角，每类默认显示 Top 3</span>
+        </div>
+        <div class="anomaly-grid">
+          <div class="list-panel">
+            <h4>包裹出库异常</h4>
+            <div class="table-head home-columns">
+              <span>订单号</span>
+              <span>下单</span>
+              <span>剩余</span>
+              <span>状态</span>
+            </div>
+            <div class="table-row home-columns"><span>SO-240503-198</span><span>昨天 09:10</span><span>-1.2h</span><span class="badge">已超时</span></div>
+            <div class="table-row home-columns"><span>SO-240503-245</span><span>昨天 10:30</span><span>0.4h</span><span class="badge">即将超时</span></div>
+            <div class="table-row home-columns"><span>SO-240503-311</span><span>昨天 13:05</span><span>2.1h</span><span class="badge">即将超时</span></div>
+            <p class="small">点击进入出库异常明细页</p>
+          </div>
+          <div class="list-panel">
+            <h4>箱子到仓不齐</h4>
+            <div class="table-head home-columns">
+              <span>入库单</span>
+              <span>首箱到仓</span>
+              <span>缺箱</span>
+              <span>状态</span>
+            </div>
+            <div class="table-row home-columns"><span>ASN-77821</span><span>4 月 30 日</span><span>12 箱</span><span class="badge">已超时</span></div>
+            <div class="table-row home-columns"><span>ASN-77843</span><span>5 月 1 日</span><span>4 箱</span><span class="badge">即将超时</span></div>
+            <div class="table-row home-columns"><span>ASN-77866</span><span>5 月 1 日</span><span>2 箱</span><span class="badge">即将超时</span></div>
+            <p class="small">点击进入到仓不齐明细页</p>
+          </div>
+          <div class="list-panel">
+            <h4>SKU 上架异常</h4>
+            <div class="table-head home-columns">
+              <span>箱号</span>
+              <span>到仓</span>
+              <span>未上架 SKU</span>
+              <span>状态</span>
+            </div>
+            <div class="table-row home-columns"><span>CTN-10432</span><span>4 月 30 日</span><span>38 个</span><span class="badge">已超时</span></div>
+            <div class="table-row home-columns"><span>CTN-10488</span><span>5 月 1 日</span><span>16 个</span><span class="badge">即将超时</span></div>
+            <div class="table-row home-columns"><span>CTN-10517</span><span>5 月 1 日</span><span>11 个</span><span class="badge">即将超时</span></div>
+            <p class="small">点击进入上架异常明细页</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="forecast-panel">
+        <div class="section-title">
+          <h3>近 7 天到仓预估区</h3>
+          <span class="muted">简版排班参考，不做复杂预测</span>
+        </div>
+        <div class="bars">
+          <div class="bar-group"><div class="bar" style="height: 78px;"></div><span class="small">5/3</span><span class="small">42 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 94px;"></div><span class="small">5/4</span><span class="small">68 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 100px;"></div><span class="small">5/5</span><span class="small">74 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 122px;"></div><span class="small">5/6</span><span class="small">106 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 130px;"></div><span class="small">5/7</span><span class="small">112 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 104px;"></div><span class="small">5/8</span><span class="small">79 箱</span></div>
+          <div class="bar-group"><div class="bar" style="height: 86px;"></div><span class="small">5/9</span><span class="small">61 箱</span></div>
+        </div>
+        <div class="legend">
+          <span>图例：箱数</span>
+          <span>图例：重量</span>
+          <span>图例：体积</span>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        <ul>
+          <li>首页边界：不做任务闭环，不做复杂配置，不做历史复盘报表。</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="wireframe">
+      <div class="wireframe-head">
+        <div class="wireframe-head-left">
+          <span class="tag">02 子页面</span>
+          <h2>出库异常明细页</h2>
+          <p>从首页出库异常卡片进入，目标是让主管筛选全部风险订单并确认最需要优先释放的订单。</p>
+        </div>
+        <div class="wireframe-head-right">
+          <span class="crumb">首页 &gt; 出库异常</span>
+        </div>
+      </div>
+
+      <div class="detail-summary">
+        <div class="summary-box">当前风险总数<strong>42 单</strong><span class="small">全部未完成订单中进入风险窗口的对象</span></div>
+        <div class="summary-box">已超时<strong>11 单</strong><span class="small">优先处理</span></div>
+        <div class="summary-box">高风险客户单<strong>7 单</strong><span class="small">建议人工通知</span></div>
+        <div class="summary-box">最早超时<strong>-5.3h</strong><span class="small">SO-240503-167</span></div>
+      </div>
+
+      <div class="layout-two-col">
+        <div class="table-stack">
+          <div class="panel">
+            <div class="section-title">
+              <h3>筛选区</h3>
+              <span class="muted">状态、渠道、客户、下单时间范围</span>
+            </div>
+            <div class="filters">
+              <span class="chip active">全部状态</span>
+              <span class="chip">已超时</span>
+              <span class="chip">Amazon</span>
+              <span class="chip">近 24 小时</span>
+            </div>
+          </div>
+          <div class="list-panel">
+            <div class="section-title">
+              <h3>异常订单表</h3>
+              <span class="muted">按状态 &gt; 紧迫度 &gt; 下单时间</span>
+            </div>
+            <div class="table-head detail-outbound">
+              <span>订单号</span>
+              <span>客户/渠道</span>
+              <span>下单时间</span>
+              <span>截止时间</span>
+              <span>剩余/超时</span>
+              <span>仓内状态</span>
+              <span>已出库</span>
+            </div>
+            <div class="table-row detail-outbound"><span>SO-240503-167</span><span>Amazon / ANKER</span><span>昨天 04:42</span><span>今天 04:42</span><span>-5.3h</span><span>待复核面单</span><span class="badge">否</span></div>
+            <div class="table-row detail-outbound"><span>SO-240503-198</span><span>Shopify / VELO</span><span>昨天 09:10</span><span>今天 09:10</span><span>-1.2h</span><span>已拣货待装袋</span><span class="badge">否</span></div>
+            <div class="table-row detail-outbound"><span>SO-240503-245</span><span>Amazon / BEAUTE</span><span>昨天 10:30</span><span>今天 10:30</span><span>0.4h</span><span>待打单</span><span class="badge">否</span></div>
+            <div class="table-row detail-outbound"><span>SO-240503-311</span><span>TikTok / HAUS</span><span>昨天 13:05</span><span>今天 13:05</span><span>2.1h</span><span>待拣货</span><span class="badge">否</span></div>
+          </div>
+        </div>
+
+        <div class="aside-stack">
+          <div class="aside-note">
+            <strong>页面说明</strong>
+            <ul>
+              <li>只做查看与筛选，不提供已处理、分派、备注等闭环动作。</li>
+              <li>补充截止时间和是否已出库字段，方便主管核对事实。</li>
+            </ul>
+          </div>
+          <div class="micro-cards">
+            <div class="summary-box">新增风险<strong>9 单</strong><span class="small">近 2 小时</span></div>
+            <div class="summary-box">客户通知建议<strong>7 单</strong><span class="small">线下处理</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="wireframe">
+      <div class="wireframe-head">
+        <div class="wireframe-head-left">
+          <span class="tag">03 子页面</span>
+          <h2>到仓不齐明细页</h2>
+          <p>从首页到仓不齐异常进入，目标是让主管围绕首箱已到但整单未齐的入库单判断是否要追运输节点或调整排程。</p>
+        </div>
+        <div class="wireframe-head-right">
+          <span class="crumb">首页 &gt; 箱子到仓不齐</span>
+        </div>
+      </div>
+
+      <div class="detail-summary">
+        <div class="summary-box">风险入库单<strong>6 单</strong><span class="small">首箱已到后仍未齐箱</span></div>
+        <div class="summary-box">已超时<strong>2 单</strong><span class="small">超过 72h</span></div>
+        <div class="summary-box">待到齐箱数<strong>18 箱</strong><span class="small">当前总缺口</span></div>
+        <div class="summary-box">缺箱最大<strong>12 箱</strong><span class="small">ASN-77821</span></div>
+      </div>
+
+      <div class="layout-two-col">
+        <div class="table-stack">
+          <div class="panel">
+            <div class="section-title">
+              <h3>筛选区</h3>
+              <span class="muted">状态、预计到仓日期范围</span>
+            </div>
+            <div class="filters">
+              <span class="chip active">全部状态</span>
+              <span class="chip">已超时</span>
+              <span class="chip">ETA 近 3 天</span>
+              <span class="chip">首箱已到</span>
+            </div>
+          </div>
+          <div class="list-panel">
+            <div class="section-title">
+              <h3>到仓不齐入库单表</h3>
+              <span class="muted">按状态 &gt; 紧迫度 &gt; 缺箱数</span>
+            </div>
+            <div class="table-head detail-inbound">
+              <span>入库单号</span>
+              <span>预计到仓日</span>
+              <span>计划箱数</span>
+              <span>已到仓</span>
+              <span>缺箱数</span>
+              <span>首箱到仓</span>
+              <span>截止时间</span>
+              <span>剩余/超时</span>
+            </div>
+            <div class="table-row detail-inbound"><span>ASN-77821</span><span>4/29</span><span>32</span><span>20</span><span>12</span><span>4/30 08:40</span><span>5/3 08:40</span><span>-1.3h</span></div>
+            <div class="table-row detail-inbound"><span>ASN-77843</span><span>5/1</span><span>18</span><span>14</span><span>4</span><span>5/1 18:20</span><span>5/4 18:20</span><span>6.2h</span></div>
+            <div class="table-row detail-inbound"><span>ASN-77866</span><span>5/1</span><span>10</span><span>8</span><span>2</span><span>5/1 22:10</span><span>5/4 22:10</span><span>14.5h</span></div>
+            <div class="table-row detail-inbound"><span>ASN-77881</span><span>5/2</span><span>12</span><span>11</span><span>1</span><span>5/2 07:35</span><span>5/5 07:35</span><span>21.4h</span></div>
+          </div>
+        </div>
+
+        <div class="aside-stack">
+          <div class="aside-note">
+            <strong>页面说明</strong>
+            <ul>
+              <li>只有首箱已到的入库单才进入本页。</li>
+              <li>一箱都未到的对象只在 7 天到仓预估出现，不在这里出现。</li>
+            </ul>
+          </div>
+          <div class="micro-cards">
+            <div class="summary-box">预计今日补齐<strong>2 单</strong><span class="small">ASN-77843、ASN-77881</span></div>
+            <div class="summary-box">本周累计缺箱<strong>29 箱</strong><span class="small">仅供参考</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="wireframe">
+      <div class="wireframe-head">
+        <div class="wireframe-head-left">
+          <span class="tag">04 子页面</span>
+          <h2>上架异常明细页</h2>
+          <p>从首页上架异常进入，目标是让主管围绕箱级对象判断最需要优先清理的上架残留，不把噪音放大到 SKU 行明细。</p>
+        </div>
+        <div class="wireframe-head-right">
+          <span class="crumb">首页 &gt; SKU 上架异常</span>
+        </div>
+      </div>
+
+      <div class="detail-summary">
+        <div class="summary-box">待关注箱数<strong>19 箱</strong><span class="small">当前未完成上架</span></div>
+        <div class="summary-box">已超时<strong>5 箱</strong><span class="small">超过 72h</span></div>
+        <div class="summary-box">未上架 SKU<strong>126 个</strong><span class="small">箱级聚合结果</span></div>
+        <div class="summary-box">最严重箱号<strong>CTN-10432</strong><span class="small">未上架 38 个</span></div>
+      </div>
+
+      <div class="layout-two-col">
+        <div class="table-stack">
+          <div class="panel">
+            <div class="section-title">
+              <h3>筛选区</h3>
+              <span class="muted">状态、到仓日期范围</span>
+            </div>
+            <div class="filters">
+              <span class="chip active">全部状态</span>
+              <span class="chip">已超时</span>
+              <span class="chip">到仓近 3 天</span>
+              <span class="chip">箱级视图</span>
+            </div>
+          </div>
+          <div class="list-panel">
+            <div class="section-title">
+              <h3>上架风险箱表</h3>
+              <span class="muted">按状态 &gt; 紧迫度 &gt; 未上架 SKU 数</span>
+            </div>
+            <div class="table-head detail-shelving">
+              <span>箱号</span>
+              <span>所属入库单</span>
+              <span>到仓时间</span>
+              <span>SKU 总数</span>
+              <span>未上架</span>
+              <span>截止时间</span>
+              <span>剩余/超时</span>
+              <span>当前状态</span>
+            </div>
+            <div class="table-row detail-shelving"><span>CTN-10432</span><span>ASN-77821</span><span>4/30 09:00</span><span>56</span><span>38</span><span>5/3 09:00</span><span>-8.4h</span><span>部分上架</span></div>
+            <div class="table-row detail-shelving"><span>CTN-10477</span><span>ASN-77833</span><span>4/30 14:10</span><span>42</span><span>21</span><span>5/3 14:10</span><span>-3.2h</span><span>待复核货位</span></div>
+            <div class="table-row detail-shelving"><span>CTN-10488</span><span>ASN-77843</span><span>5/1 13:00</span><span>24</span><span>16</span><span>5/4 13:00</span><span>3.0h</span><span>待上架</span></div>
+            <div class="table-row detail-shelving"><span>CTN-10517</span><span>ASN-77866</span><span>5/1 17:40</span><span>18</span><span>11</span><span>5/4 17:40</span><span>7.2h</span><span>待上架</span></div>
+          </div>
+        </div>
+
+        <div class="aside-stack">
+          <div class="aside-note">
+            <strong>页面说明</strong>
+            <ul>
+              <li>本页按箱级监控，不直接展开 SKU 行明细。</li>
+              <li>只有未完成上架的箱子进入本页，已完成对象不在清单中。</li>
+            </ul>
+          </div>
+          <div class="micro-cards">
+            <div class="summary-box">严重阈值<strong>8h</strong><span class="small">超时超过 8 小时视为严重</span></div>
+            <div class="summary-box">预计下午新增<strong>6 箱</strong><span class="small">需预留人力</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</body>
+</html>
