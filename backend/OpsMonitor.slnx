@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Api.Tests/">
+    <Project Path="Api.Tests/OpsMonitor.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Api/">
+    <Project Path="Api/OpsMonitor.Api.csproj" />
+  </Folder>
+  <Folder Name="/Application/">
+    <Project Path="Application/OpsMonitor.Application.csproj" />
+  </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/OpsMonitor.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/OpsMonitor.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/OpsMonitor.Infrastructure.csproj" />
+  </Folder>
+</Solution>
