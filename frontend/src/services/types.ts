@@ -52,11 +52,32 @@ export interface AlertChannelStatus {
   status: string
 }
 
+export interface AnomalyPreviewItem {
+  orderId?: string
+  asnId?: string
+  cartonId?: string
+  customerOrChannel?: string
+  orderTime?: string
+  firstArrivalTime?: string
+  arrivalTime?: string
+  deadlineAt: string
+  currentStatus?: string
+  riskStatus: string
+  timeStatus: string
+  timeValueMinutes: number
+  timeValueLabel: string
+  plannedCartonCount?: number
+  arrivedCartonCount?: number
+  missingCartonCount?: number
+  skuCount?: number
+  unshelvedSkuCount?: number
+}
+
 export interface AnomalyPreviewGroup {
   total: number
   imminentCount: number
   overdueCount: number
-  items: unknown[]
+  items: AnomalyPreviewItem[]
 }
 
 export interface DashboardData {
