@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTabsStore } from '@/stores/tabs'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const tabsStore = useTabsStore()
 
-// 侧边栏菜单结构（支持二级）
-interface LeafItem { label: string; path: string }
-interface GroupItem { label: string; key: string; children: LeafItem[] }
+// ── 侧边栏菜单结构 ────────────────────────────────────────────────
+interface LeafItem { label: string; path: string; icon: string }
+interface GroupItem { label: string; key: string; icon: string; children: Omit<LeafItem, 'icon'>[] }
 type MenuItem = LeafItem | GroupItem
 
 const menuGroups: MenuItem[] = [
-  { label: '首页', path: '/dashboard' },
+  { label: '首页', path: '/dashboard', icon: '⊞' },
   {
     label: '异常管理',
     key: '/anomalies',
+    icon: '⚑',
     children: [
       { label: '出库异常', path: '/anomalies/outbound' },
       { label: '到仓不齐', path: '/anomalies/inbound' },
@@ -26,6 +29,7 @@ const menuGroups: MenuItem[] = [
   {
     label: '系统设置',
     key: '/settings',
+    icon: '⚙',
     children: [
       { label: '提醒配置', path: '/settings/alerts' },
     ],
@@ -37,24 +41,39 @@ function isGroup(item: MenuItem): item is GroupItem {
 }
 
 // 当前所在分组自动展开
-const openedKeys = computed(() => {
-  const prefix = '/' + route.path.split('/')[1]
-  return [prefix]
-})
+const openedKeys = ['/' + route.path.split('/')[1]]
 
-// 面包屑
-interface BreadcrumbItem { label: string; path?: string }
-const breadcrumbs = computed((): BreadcrumbItem[] => {
+// ── 路由变化时同步 Tab ────────────────────────────────────────────
+watch(
+  () => route.path,
+  (path) => {
+    const title = (route.meta as Record<string, string>).title ?? path
+    if (route.meta.requiresAuth) {
+      tabsStore.addTab(path, title)
+    }
+  },
+  { immediate: true },
+)
+
+// ── Tab 操作 ─────────────────────────────────────────────────────
+function closeTab(path: string) {
+  const target = tabsStore.closeTab(path)
+  if (route.path === path) router.push(target)
+}
+
+// ── 面包屑 ───────────────────────────────────────────────────────
+function getBreadcrumbs() {
   const meta = route.meta as Record<string, string>
-  const items: BreadcrumbItem[] = [{ label: '首页', path: '/dashboard' }]
-  if (meta.groupTitle) items.push({ label: meta.groupTitle })
-  if (meta.title && route.path !== '/dashboard') items.push({ label: meta.title })
+  const items: { label: string; path?: string }[] = [{ label: '首页', path: '/dashboard' }]
+  if (meta.groupTitle && route.path !== '/dashboard') items.push({ label: meta.groupTitle })
+  if (meta.title && route.path !== '/dashboard') items.push({ label: meta.title, path: route.path })
   return items
-})
+}
 
-// 用户下拉菜单
+// ── 退出登录 ─────────────────────────────────────────────────────
 function handleUserCommand(cmd: string) {
   if (cmd === 'logout') {
+    tabsStore.reset()
     authStore.signOut()
     router.push('/login')
   }
@@ -64,307 +83,240 @@ function handleUserCommand(cmd: string) {
 <template>
   <div class="app-shell">
 
-    <!-- 全宽顶部导航栏 -->
-    <header class="navbar">
-      <div class="navbar-brand">
+    <!-- ══ 左侧侧边栏 ══ -->
+    <aside class="sidebar">
+      <!-- 品牌 -->
+      <div class="brand">
         <span class="brand-icon">📊</span>
         <span class="brand-name">Ops Monitor</span>
       </div>
 
-      <nav class="navbar-center">
-        <span
-          class="nav-tag"
-          :class="{ active: route.path === '/dashboard' }"
-          @click="router.push('/dashboard')"
-        >控制台</span>
-        <span
-          class="nav-tag"
-          :class="{ active: route.path.startsWith('/anomalies') }"
-          @click="router.push('/anomalies/outbound')"
-        >异常管理</span>
-        <span
-          class="nav-tag"
-          :class="{ active: route.path.startsWith('/settings') }"
-          @click="router.push('/settings/alerts')"
-        >系统设置</span>
+      <!-- 菜单 -->
+      <el-menu
+        :default-active="route.path"
+        :default-openeds="openedKeys"
+        router
+        class="sidebar-menu"
+      >
+        <template v-for="item in menuGroups" :key="item.label">
+          <!-- 一级菜单项 -->
+          <el-menu-item v-if="!isGroup(item)" :index="(item as LeafItem).path">
+            <template #title>
+              <span class="menu-icon">{{ (item as LeafItem).icon }}</span>
+              {{ item.label }}
+            </template>
+          </el-menu-item>
+
+          <!-- 二级分组 -->
+          <el-sub-menu v-else :index="(item as GroupItem).key">
+            <template #title>
+              <span class="menu-icon">{{ (item as GroupItem).icon }}</span>
+              {{ item.label }}
+            </template>
+            <el-menu-item
+              v-for="child in (item as GroupItem).children"
+              :key="child.path"
+              :index="child.path"
+            >
+              {{ child.label }}
+            </el-menu-item>
+          </el-sub-menu>
+        </template>
+      </el-menu>
+    </aside>
+
+    <!-- ══ 右侧主区域 ══ -->
+    <div class="main">
+
+      <!-- 顶部栏：面包屑 + 用户 -->
+      <header class="topbar">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item
+            v-for="crumb in getBreadcrumbs()"
+            :key="crumb.label"
+            :to="crumb.path"
+          >{{ crumb.label }}</el-breadcrumb-item>
+        </el-breadcrumb>
+
+        <div class="user-area">
+          <el-dropdown trigger="click" @command="handleUserCommand">
+            <div class="user-btn">
+              <span class="avatar">{{ authStore.displayName.charAt(0) }}</span>
+              <span class="username">{{ authStore.displayName }}</span>
+              <svg viewBox="0 0 10 6" width="9" height="9" style="margin-left:2px;color:#94a3b8">
+                <path d="M0 0l5 6 5-6z" fill="currentColor" />
+              </svg>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item disabled style="font-size:12px;color:#94a3b8">
+                  {{ authStore.displayName }}
+                </el-dropdown-item>
+                <el-dropdown-item divided command="logout" style="color:#ef4444">
+                  退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </header>
+
+      <!-- Tab 标签页 -->
+      <nav class="tab-bar">
+        <div
+          v-for="tab in tabsStore.tabs"
+          :key="tab.path"
+          class="tab-item"
+          :class="{ 'tab-active': route.path === tab.path }"
+          @click="router.push(tab.path)"
+        >
+          <span v-if="route.path === tab.path" class="tab-dot">●</span>
+          <span class="tab-label">{{ tab.title }}</span>
+          <button
+            v-if="tab.closeable"
+            class="tab-close"
+            @click.stop="closeTab(tab.path)"
+          >×</button>
+        </div>
       </nav>
 
-      <div class="navbar-right">
-        <el-dropdown trigger="click" @command="handleUserCommand">
-          <div class="user-trigger">
-            <span class="avatar">{{ authStore.displayName.charAt(0) }}</span>
-            <span class="display-name">{{ authStore.displayName }}</span>
-            <svg class="caret" viewBox="0 0 10 6" width="10" height="6">
-              <path d="M0 0l5 6 5-6z" fill="currentColor" />
-            </svg>
-          </div>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item disabled>
-                <span style="color:#64748b;font-size:12px">当前账号：{{ authStore.displayName }}</span>
-              </el-dropdown-item>
-              <el-dropdown-item divided command="logout" style="color:#ef4444">
-                退出登录
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    </header>
-
-    <!-- 主体区（侧边栏 + 内容） -->
-    <div class="body">
-
-      <!-- 侧边栏 -->
-      <aside class="sidebar">
-        <el-menu
-          :default-active="route.path"
-          :default-openeds="openedKeys"
-          router
-          class="sidebar-menu"
-        >
-          <template v-for="item in menuGroups" :key="item.label">
-            <el-menu-item v-if="!isGroup(item)" :index="(item as LeafItem).path">
-              {{ item.label }}
-            </el-menu-item>
-            <el-sub-menu v-else :index="(item as GroupItem).key">
-              <template #title>{{ item.label }}</template>
-              <el-menu-item
-                v-for="child in (item as GroupItem).children"
-                :key="child.path"
-                :index="child.path"
-              >
-                {{ child.label }}
-              </el-menu-item>
-            </el-sub-menu>
-          </template>
-        </el-menu>
-      </aside>
-
-      <!-- 内容区 -->
-      <section class="content">
-        <!-- 面包屑栏 -->
-        <div class="breadbar">
-          <el-breadcrumb separator="›">
-            <el-breadcrumb-item
-              v-for="crumb in breadcrumbs"
-              :key="crumb.label"
-              :to="crumb.path"
-            >{{ crumb.label }}</el-breadcrumb-item>
-          </el-breadcrumb>
-          <span class="page-title">{{ (route.meta as any).title ?? '' }}</span>
-        </div>
-
-        <!-- 页面内容 -->
-        <main class="page-body">
-          <router-view />
-        </main>
-      </section>
-
+      <!-- 页面内容 -->
+      <main class="page-body">
+        <router-view />
+      </main>
     </div>
+
   </div>
 </template>
 
 <style scoped>
-/* 根容器 */
+/* ── 根容器：侧边栏固定宽，右侧占满 ── */
 .app-shell {
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+}
+
+/* ══ 侧边栏 ══ */
+.sidebar {
+  background: #2d3a4a;
   display: flex;
   flex-direction: column;
-}
-
-/* 全宽顶部导航栏 */
-.navbar {
-  height: 56px;
-  flex-shrink: 0;
-  background: #16324f;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
   position: sticky;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 180px;
-}
-
-.brand-icon { font-size: 20px; }
-
-.brand-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.navbar-center {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 16px;
-}
-
-.nav-tag {
-  padding: 5px 14px;
-  border-radius: 6px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.65);
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-
-.nav-tag:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-tag.active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.15);
-  font-weight: 600;
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.user-trigger {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-
-.user-trigger:hover { background: rgba(255, 255, 255, 0.1); }
-
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-}
-
-.display-name {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.caret {
-  color: rgba(255, 255, 255, 0.45);
-  margin-top: 1px;
-}
-
-/* 主体区 */
-.body {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  min-height: 0;
-}
-
-/* 侧边栏 */
-.sidebar {
-  background: #1e3a54;
+  height: 100vh;
   overflow-y: auto;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.brand-icon { font-size: 18px; }
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.3px;
+}
+
+/* el-menu 深色覆盖 */
 .sidebar-menu {
-  background-color: transparent !important;
+  background: transparent !important;
   border-right: none !important;
-  padding: 10px 8px;
+  flex: 1;
+  padding: 6px 8px;
 }
 
 :deep(.el-menu-item),
 :deep(.el-sub-menu__title) {
-  color: rgba(255, 255, 255, 0.6) !important;
-  border-radius: 8px;
-  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.55) !important;
+  border-radius: 6px;
+  margin-bottom: 1px;
   height: 40px;
   line-height: 40px;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 :deep(.el-menu-item:hover),
 :deep(.el-sub-menu__title:hover) {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 :deep(.el-menu-item.is-active) {
-  background-color: rgba(255, 255, 255, 0.14) !important;
-  color: #ffffff !important;
+  background: rgba(64, 158, 255, 0.18) !important;
+  color: #7ec8f8 !important;
   font-weight: 600;
 }
 
 :deep(.el-sub-menu .el-menu) {
-  background-color: transparent !important;
+  background: transparent !important;
 }
 
 :deep(.el-sub-menu .el-menu .el-menu-item) {
-  padding-left: 36px !important;
-  font-size: 13px;
+  padding-left: 40px !important;
+  font-size: 12.5px;
   height: 36px;
   line-height: 36px;
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+:deep(.el-sub-menu .el-menu .el-menu-item.is-active) {
+  color: #7ec8f8 !important;
+  background: rgba(64, 158, 255, 0.14) !important;
 }
 
 :deep(.el-sub-menu__icon-arrow) {
-  color: rgba(255, 255, 255, 0.35) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
 }
 
 :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
-/* 内容区 */
-.content {
-  background: #f4f6fb;
+.menu-icon {
+  margin-right: 8px;
+  font-style: normal;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* ══ 右侧主区域 ══ */
+.main {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 100vh;
+  background: #f0f2f5;
 }
 
-/* 面包屑栏 */
-.breadbar {
-  height: 48px;
-  padding: 0 24px;
+/* ── 顶部栏 ── */
+.topbar {
+  height: 50px;
   background: #ffffff;
-  border-bottom: 1px solid #e5eaf3;
+  border-bottom: 1px solid #e8edf3;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 :deep(.el-breadcrumb__inner) {
   color: #64748b !important;
-  font-weight: 400;
   font-size: 13px;
 }
 
 :deep(.el-breadcrumb__inner.is-link:hover) {
-  color: #16324f !important;
+  color: #409eff !important;
 }
 
 :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
@@ -374,19 +326,121 @@ function handleUserCommand(cmd: string) {
 
 :deep(.el-breadcrumb__separator) {
   color: #cbd5e1 !important;
-  margin: 0 6px;
 }
 
-.page-title {
+.user-area { display: flex; align-items: center; }
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: background 0.15s;
+}
+
+.user-btn:hover { background: #f1f5f9; }
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #36cfc9, #1890ff);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.username {
+  font-size: 13px;
+  color: #374151;
+}
+
+/* ── Tab 标签页栏 ── */
+.tab-bar {
+  height: 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8edf3;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  gap: 2px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  height: 30px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tab-item:hover {
+  background: #f8fafc;
+  color: #374151;
+  border-color: #e2e8f0;
+}
+
+.tab-active {
+  background: #f0f9ff;
+  color: #0284c7;
+  border-color: #bae6fd;
+  font-weight: 500;
+}
+
+.tab-dot {
+  font-size: 8px;
+  color: #10b981;
+  line-height: 1;
+}
+
+.tab-label { line-height: 1; }
+
+.tab-close {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
+  line-height: 1;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  margin-left: 2px;
+  transition: all 0.15s;
 }
 
-/* 页面内容 */
+.tab-close:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* ── 页面内容 ── */
 .page-body {
   flex: 1;
-  padding: 20px 24px;
+  padding: 20px;
   overflow-y: auto;
 }
 </style>
