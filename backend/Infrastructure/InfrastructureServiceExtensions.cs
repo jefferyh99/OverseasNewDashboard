@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpsMonitor.Infrastructure.Notifications;
 using OpsMonitor.Infrastructure.Persistence;
 
 namespace OpsMonitor.Infrastructure;
@@ -33,6 +34,11 @@ public static class InfrastructureServiceExtensions
         }
 
         services.AddSingleton<BusinessReadConnectionFactory>();
+
+        // 通知渠道
+        services.AddHttpClient("wechat");
+        services.AddSingleton<INotificationChannel, WechatWebhookChannel>();
+        services.AddSingleton<INotificationChannel, SmtpEmailChannel>();
 
         return services;
     }
