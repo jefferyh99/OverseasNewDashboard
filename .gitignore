@@ -32,3 +32,17 @@ _ReSharper*/
 packages/
 *.dll
 *.dll
+
+# Node.js frontend
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# .NET backend
+backend/**/bin/
+backend/**/obj/
+backend/TestResults/
+
+# Shared tooling outputs
+coverage/
+*.coverage
