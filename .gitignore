@@ -37,6 +37,9 @@ packages/
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.*.local
 
 # .NET backend
 backend/**/bin/
