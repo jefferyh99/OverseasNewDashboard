@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Net.Http.Json;
+using OpsMonitor.Contracts;
 using OpsMonitor.Contracts.Auth;
 
 namespace OpsMonitor.Api.Tests;
@@ -17,10 +18,10 @@ public class AuthControllerTests(WebApplicationFactory<Program> factory)
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        Assert.Equal("mock-jwt-token", result!.Token);
-        Assert.Equal("Administrator", result.DisplayName);
-        Assert.Contains("dashboard:view", result.Permissions);
+        var result = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponse>>();
+        Assert.Equal("mock-jwt-token", result!.Data!.Token);
+        Assert.Equal("系统管理员", result.Data.DisplayName);
+        Assert.Equal("admin", result.Data.UserId);
     }
 
     [Fact]
@@ -34,21 +35,47 @@ public class AuthControllerTests(WebApplicationFactory<Program> factory)
     }
 
     [Fact]
-    public async Task Dashboard_summary_requires_auth()
+    public async Task Dashboard_requires_auth()
     {
         var client = factory.CreateClient();
-        var response = await client.GetAsync("/api/dashboard/summary");
+        var response = await client.GetAsync("/api/dashboard");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
-    public async Task Dashboard_summary_returns_200_with_mock_token()
+    public async Task Dashboard_returns_200_with_mock_token()
     {
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
-        var response = await client.GetAsync("/api/dashboard/summary");
+        var response = await client.GetAsync("/api/dashboard");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Auth_validate_returns_valid_with_mock_token()
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
+        var response = await client.GetAsync("/api/auth/validate");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<ApiResponse<ValidateResponse>>();
+        Assert.True(result!.Data!.Valid);
+    }
+
+    [Fact]
+    public async Task Auth_permissions_returns_menu_permissions()
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
+        var response = await client.GetAsync("/api/auth/permissions");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<ApiResponse<PermissionsResponse>>();
+        Assert.Contains("dashboard", result!.Data!.MenuPermissions);
     }
 }

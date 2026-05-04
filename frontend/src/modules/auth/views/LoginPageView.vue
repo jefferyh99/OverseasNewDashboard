@@ -17,15 +17,14 @@ async function submit() {
   }
   loading.value = true
   errorMsg.value = ''
-  // 模拟异步（对接真实接口时替换此处）
-  await new Promise(r => setTimeout(r, 300))
-  if (form.username === 'admin' && form.password === 'admin') {
-    authStore.signIn()
+  try {
+    await authStore.signIn(form.username, form.password)
     router.push('/dashboard')
-  } else {
+  } catch {
     errorMsg.value = '用户名或密码错误，请重试'
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 </script>
 

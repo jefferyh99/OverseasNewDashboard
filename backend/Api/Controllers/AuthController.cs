@@ -1,26 +1,53 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpsMonitor.Contracts;
 using OpsMonitor.Contracts.Auth;
 
 namespace OpsMonitor.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     [HttpPost("login")]
     [AllowAnonymous]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        // Mock: accept admin/admin only. Replace with real auth adapter.
         if (request.Username != "admin" || request.Password != "admin")
-            return Unauthorized(new { message = "Invalid credentials." });
+            return Unauthorized(ApiResponse<object>.Fail("UNAUTHORIZED", "用户名或密码错误"));
 
-        var response = new LoginResponse(
+        var data = new LoginResponse(
             Token: "mock-jwt-token",
-            DisplayName: "Administrator",
-            Permissions: ["dashboard:view", "anomaly:view", "settings:view"]);
+            TokenType: "Bearer",
+            ExpiresIn: 7200,
+            UserId: "admin",
+            UserName: "admin",
+            DisplayName: "系统管理员");
 
-        return Ok(response);
+        return Ok(ApiResponse<LoginResponse>.Ok(data));
+    }
+
+    [HttpGet("validate")]
+    [Authorize]
+    public IActionResult Validate()
+    {
+        var data = new ValidateResponse(
+            Valid: true,
+            UserId: "admin",
+            UserName: "admin",
+            ExpiresAt: DateTimeOffset.UtcNow.AddHours(2));
+
+        return Ok(ApiResponse<ValidateResponse>.Ok(data));
+    }
+
+    [HttpGet("permissions")]
+    [Authorize]
+    public IActionResult GetPermissions()
+    {
+        var data = new PermissionsResponse(
+            MenuPermissions: ["dashboard", "anomaly-outbound", "anomaly-inbound", "anomaly-shelving", "settings-alerts"],
+            ButtonPermissions: ["settings-alerts-save"]);
+
+        return Ok(ApiResponse<PermissionsResponse>.Ok(data));
     }
 }
