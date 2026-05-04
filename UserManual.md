@@ -853,6 +853,7 @@ AI 在生成完整功能时，**必须按以下顺序**操作，不得跳步：
 | `WebApplicationFactory` 无法启动，报 "entry point exited without ever building an IHost" | `Program.cs` 中 Serilog 的 `try/finally` 包裹会在测试环境下干扰 Host 构建 | `Program.cs` 不使用 `try/finally`，直接顶层语句启动 |
 | Infrastructure 类库引用 `IConfiguration`/`IServiceCollection` 报 CS0246 | 类库使用 `Microsoft.NET.Sdk`（非 Web），不自动引入 ASP.NET Core 命名空间 | 添加显式 `using Microsoft.Extensions.Configuration;` 等——这些类型已由 EF Core 传递引入，只需 using |
 | `.slnx` 而非 `.sln` | .NET 10 默认生成新格式解决方案文件 | 所有 `dotnet` 命令指定 `OpsMonitor.slnx`，或在 `backend/` 目录下执行（自动发现） |
+| EF Core 10 启动报 `RelationalCommandBuilderDependencies registered multiple times` | EF Core 10 严格校验：同一项目中同时安装 SqlServer 和 Sqlite 两个 Provider 包，即使代码只调用其中一个，启动时也会冲突 | 框架模板只保留 Sqlite；需要 SQL Server 时先 `dotnet add package Microsoft.EntityFrameworkCore.SqlServer`，再修改 `InfrastructureServiceExtensions.cs` 中对应分支 |
 
 ### A.6 测试中使用 Mock Token 的标准写法
 
