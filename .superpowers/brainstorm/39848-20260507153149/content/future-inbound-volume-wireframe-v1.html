@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>待到仓货量详情页线框 v2</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --line: #d9e1ec;
+      --muted: #6b7280;
+      --text: #0f172a;
+      --accent: #1d4ed8;
+      --soft: #eef4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .mock-page {
+      margin-top: 22px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    .mock-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 22px;
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .head-left h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+    .head-left p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #bfd0ea;
+      background: #fff;
+      font-size: 12px;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .content {
+      padding: 20px 22px 22px;
+      display: grid;
+      gap: 16px;
+      background: #fbfcfe;
+    }
+    .toolbar,
+    .stats,
+    .table-wrap {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .filter-box,
+    .action-box {
+      min-height: 42px;
+      border: 1px dashed #b8c5d8;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+    }
+    .action-box {
+      justify-content: center;
+      font-weight: 700;
+      background: #eff6ff;
+      border-style: solid;
+      color: var(--accent);
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat-card {
+      border: 1px dashed #b8c5d8;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 14px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .table-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .table-title h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    .table-title .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #e5ebf3;
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th {
+      background: #f3f7fb;
+      color: #334155;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <h1>待到仓货量详情页线框 v2</h1>
+      <p>承接入口：未来7天待到仓货量预估 → 查看全部。页面目标是把首页的未来货量预估展开成可筛选、可导出的明细视图。</p>
+      <div class="note">
+        当前按一个简单口径先落线框：
+        1. 页面数据结构类似“明天待到仓箱子”模块；
+        2. 增加筛选区，包含 `仓库`、`时间范围`、`货运方式`；
+        3. 列表新增 `到货日期`、`卡派板数`、`海运柜数`；
+        4. 列表粒度先按 `到货日期 × 货运方式` 展示。
+      </div>
+    </div>
+
+    <section class="mock-page">
+      <div class="mock-head">
+        <div class="head-left">
+          <h2>待到仓货量详情页</h2>
+          <p>承接入口：未来7天待到仓货量预估 → 查看全部</p>
+        </div>
+        <div class="chip-row">
+          <div class="chip">默认仓库：当前仓库</div>
+          <div class="chip">默认时间：未来7天</div>
+          <div class="chip">支持货运方式筛选</div>
+          <div class="chip">支持导出</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="toolbar">
+          <div class="section-title">筛选区</div>
+          <div class="filters" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+            <div class="filter-box">仓库</div>
+            <div class="filter-box">时间范围</div>
+            <div class="filter-box">货运方式：海运 / 空运 / 快递 / 卡派</div>
+            <div class="action-box">查询</div>
+            <div class="action-box">重置 / 导出</div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="section-title">统计条</div>
+          <div class="stat-grid" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+            <div class="stat-card">
+              <div class="stat-label">总箱数</div>
+              <div class="stat-value">1,246</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">总重量(kg)</div>
+              <div class="stat-value">18,420</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">总体积(m3)</div>
+              <div class="stat-value">286</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">海运柜数</div>
+              <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">卡派板数</div>
+              <div class="stat-value">86</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <h3>列表区：一行一个“到货日期 × 货运方式”</h3>
+            <div class="hint">海运柜数仅海运有值，卡派板数仅卡派有值，其他货运方式显示 -。</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>到货日期</th>
+                <th>货运方式</th>
+                <th>总箱数</th>
+                <th>总重量(kg)</th>
+                <th>总体积(m3)</th>
+                <th>总件数</th>
+                <th>总SKU数</th>
+                <th>卡派板数</th>
+                <th>海运柜数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-05-08</td>
+                <td>海运</td>
+                <td>160</td>
+                <td>2,420</td>
+                <td>38</td>
+                <td>4,960</td>
+                <td>820</td>
+                <td>-</td>
+                <td>4</td>
+              </tr>
+              <tr>
+                <td>2026-05-08</td>
+                <td>空运</td>
+                <td>120</td>
+                <td>1,360</td>
+                <td>18</td>
+                <td>2,980</td>
+                <td>560</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>2026-05-09</td>
+                <td>快递</td>
+                <td>88</td>
+                <td>1,120</td>
+                <td>15</td>
+                <td>2,240</td>
+                <td>410</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>2026-05-09</td>
+                <td>卡派</td>
+                <td>96</td>
+                <td>1,460</td>
+                <td>22</td>
+                <td>2,760</td>
+                <td>470</td>
+                <td>18</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
