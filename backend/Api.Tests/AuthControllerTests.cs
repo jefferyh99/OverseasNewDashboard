@@ -67,7 +67,7 @@ public class AuthControllerTests(WebApplicationFactory<Program> factory)
     }
 
     [Fact]
-    public async Task Auth_permissions_returns_menu_permissions()
+    public async Task Auth_permissions_returns_workload_and_anomaly_menu_permissions()
     {
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
@@ -76,6 +76,18 @@ public class AuthControllerTests(WebApplicationFactory<Program> factory)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<PermissionsResponse>>();
-        Assert.Contains("dashboard", result!.Data!.MenuPermissions);
+        var permissions = result!.Data!.MenuPermissions;
+
+        Assert.Contains("dashboard", permissions);
+        Assert.Contains("workload-dashboard", permissions);
+        Assert.Contains("anomaly-dashboard", permissions);
+        Assert.Contains("workload-outbound-detail", permissions);
+        Assert.Contains("workload-sku-detail", permissions);
+        Assert.Contains("workload-carton-detail", permissions);
+        Assert.Contains("workload-future-inbound-volume", permissions);
+        Assert.Contains("anomaly-outbound", permissions);
+        Assert.Contains("anomaly-inbound", permissions);
+        Assert.Contains("anomaly-shelving", permissions);
+        Assert.Contains("settings-alerts", permissions);
     }
 }

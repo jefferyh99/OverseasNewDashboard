@@ -45,7 +45,20 @@ public class AuthController : ControllerBase
     public IActionResult GetPermissions()
     {
         var data = new PermissionsResponse(
-            MenuPermissions: ["dashboard", "anomaly-outbound", "anomaly-inbound", "anomaly-shelving", "settings-alerts"],
+            MenuPermissions:
+            [
+                "dashboard",
+                "workload-dashboard",
+                "anomaly-dashboard",
+                "workload-outbound-detail",
+                "workload-sku-detail",
+                "workload-carton-detail",
+                "workload-future-inbound-volume",
+                "anomaly-outbound",
+                "anomaly-inbound",
+                "anomaly-shelving",
+                "settings-alerts"
+            ],
             ButtonPermissions: ["settings-alerts-save"]);
 
         return Ok(ApiResponse<PermissionsResponse>.Ok(data));

@@ -14,19 +14,21 @@ public class AnomaliesController : ControllerBase
 
     [HttpGet("outbound")]
     public IActionResult GetOutbound(
-        [FromQuery] string? riskStatus,
-        [FromQuery] string? channel,
-        [FromQuery] string? customer,
-        [FromQuery] DateTimeOffset? orderTimeStart,
-        [FromQuery] DateTimeOffset? orderTimeEnd,
+        [FromQuery] string warehouseCode = "DE",
+        [FromQuery] string? riskStatus = null,
+        [FromQuery] string? channel = null,
+        [FromQuery] string? customer = null,
+        [FromQuery] DateTimeOffset? orderTimeStart = null,
+        [FromQuery] DateTimeOffset? orderTimeEnd = null,
         [FromQuery] int pageNo = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string sortBy = "deadlineAt",
         [FromQuery] string sortDirection = "asc")
     {
         var now = DateTimeOffset.Now;
+        var orderPrefix = warehouseCode == "ON" ? "ON" : "DE";
         var items = Enumerable.Range(1, 5).Select(i => new OutboundItem(
-            OrderId: $"SO2026050400{i}",
+            OrderId: $"{orderPrefix}-SO2026050400{i}",
             CustomerOrChannel: i % 2 == 0 ? "客户A / 渠道A" : "客户B / 渠道B",
             OrderTime: now.AddHours(-i * 6),
             DeadlineAt: now.AddHours(i % 3 == 0 ? -2 : 2),
@@ -49,17 +51,19 @@ public class AnomaliesController : ControllerBase
 
     [HttpGet("inbound")]
     public IActionResult GetInbound(
-        [FromQuery] string? riskStatus,
-        [FromQuery] string? etaDateStart,
-        [FromQuery] string? etaDateEnd,
+        [FromQuery] string warehouseCode = "DE",
+        [FromQuery] string? riskStatus = null,
+        [FromQuery] string? etaDateStart = null,
+        [FromQuery] string? etaDateEnd = null,
         [FromQuery] int pageNo = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string sortBy = "deadlineAt",
         [FromQuery] string sortDirection = "asc")
     {
         var now = DateTimeOffset.Now;
+        var asnPrefix = warehouseCode == "ON" ? "ON" : "DE";
         var items = Enumerable.Range(1, 4).Select(i => new InboundItem(
-            AsnId: $"ASN2026050400{i}",
+            AsnId: $"{asnPrefix}-ASN2026050400{i}",
             EtaDate: now.AddDays(-i).ToString("yyyy-MM-dd"),
             PlannedCartonCount: 50,
             ArrivedCartonCount: 50 - i * 2,
@@ -82,18 +86,20 @@ public class AnomaliesController : ControllerBase
 
     [HttpGet("shelving")]
     public IActionResult GetShelving(
-        [FromQuery] string? riskStatus,
-        [FromQuery] string? arrivalDateStart,
-        [FromQuery] string? arrivalDateEnd,
+        [FromQuery] string warehouseCode = "DE",
+        [FromQuery] string? riskStatus = null,
+        [FromQuery] string? arrivalDateStart = null,
+        [FromQuery] string? arrivalDateEnd = null,
         [FromQuery] int pageNo = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string sortBy = "deadlineAt",
         [FromQuery] string sortDirection = "asc")
     {
         var now = DateTimeOffset.Now;
+        var cartonPrefix = warehouseCode == "ON" ? "ON" : "DE";
         var items = Enumerable.Range(1, 5).Select(i => new ShelvingItem(
-            CartonId: $"CTN2026050400{i}",
-            AsnId: $"ASN202605030{i:D2}",
+            CartonId: $"{cartonPrefix}-CTN2026050400{i}",
+            AsnId: $"{cartonPrefix}-ASN202605030{i:D2}",
             ArrivalTime: now.AddDays(-i),
             SkuCount: 18,
             UnshelvedSkuCount: i * 2,
