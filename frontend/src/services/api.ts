@@ -1,16 +1,29 @@
-import { http } from './http'
+﻿import { http } from './http'
 import type {
   ApiResponse,
-  LoginRequest, LoginData, ValidateData, PermissionsData,
+  LoginRequest,
+  LoginData,
+  ValidateData,
+  PermissionsData,
   DashboardData,
-  OutboundData, OutboundQuery,
-  InboundData, InboundQuery,
-  ShelvingData, ShelvingQuery,
+  WorkloadDashboardData,
+  WorkloadOutboundQuery,
+  OutboundPackageDetailData,
+  WorkloadSkuQuery,
+  SkuDetailData,
+  WorkloadCartonQuery,
+  CartonDetailData,
+  FutureInboundVolumeQuery,
+  FutureInboundVolumeData,
+  OutboundData,
+  OutboundQuery,
+  InboundData,
+  InboundQuery,
+  ShelvingData,
+  ShelvingQuery,
   AlertsConfigData,
   DiagnosticsData,
 } from './types'
-
-// ── Auth ─────────────────────────────────────────────────────────
 
 export const authApi = {
   login: (data: LoginRequest) =>
@@ -23,14 +36,29 @@ export const authApi = {
     http.get<ApiResponse<PermissionsData>>('/auth/permissions'),
 }
 
-// ── Dashboard ────────────────────────────────────────────────────
-
 export const dashboardApi = {
-  get: () =>
-    http.get<ApiResponse<DashboardData>>('/dashboard'),
+  get: (warehouseCode?: string) =>
+    http.get<ApiResponse<DashboardData>>('/dashboard', {
+      params: warehouseCode ? { warehouseCode } : undefined,
+    }),
 }
 
-// ── Anomalies ────────────────────────────────────────────────────
+export const workloadApi = {
+  dashboard: (warehouseCode: string) =>
+    http.get<ApiResponse<WorkloadDashboardData>>('/workloads/dashboard', { params: { warehouseCode } }),
+
+  outboundPackages: (params: WorkloadOutboundQuery) =>
+    http.get<ApiResponse<OutboundPackageDetailData>>('/workloads/outbound-packages', { params }),
+
+  skus: (params: WorkloadSkuQuery) =>
+    http.get<ApiResponse<SkuDetailData>>('/workloads/skus', { params }),
+
+  cartons: (params: WorkloadCartonQuery) =>
+    http.get<ApiResponse<CartonDetailData>>('/workloads/cartons', { params }),
+
+  futureInboundVolume: (params: FutureInboundVolumeQuery) =>
+    http.get<ApiResponse<FutureInboundVolumeData>>('/workloads/future-inbound-volume', { params }),
+}
 
 export const anomaliesApi = {
   outbound: (params: OutboundQuery) =>
@@ -43,8 +71,6 @@ export const anomaliesApi = {
     http.get<ApiResponse<ShelvingData>>('/anomalies/shelving', { params }),
 }
 
-// ── Settings ─────────────────────────────────────────────────────
-
 export const settingsApi = {
   getAlerts: () =>
     http.get<ApiResponse<AlertsConfigData>>('/settings/alerts'),
@@ -52,8 +78,6 @@ export const settingsApi = {
   saveAlerts: (data: Omit<AlertsConfigData, 'updatedAt' | 'updatedBy'>) =>
     http.put<ApiResponse<AlertsConfigData>>('/settings/alerts', data),
 }
-
-// ── Diagnostics ──────────────────────────────────────────────────
 
 export const diagnosticsApi = {
   overview: () =>

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -9,17 +9,17 @@ const router = useRouter()
 const authStore = useAuthStore()
 const tabsStore = useTabsStore()
 
-// ── 侧边栏菜单结构 ────────────────────────────────────────────────
 interface LeafItem { label: string; path: string; icon: string }
 interface GroupItem { label: string; key: string; icon: string; children: Omit<LeafItem, 'icon'>[] }
 type MenuItem = LeafItem | GroupItem
 
 const menuGroups: MenuItem[] = [
-  { label: '首页', path: '/dashboard', icon: '⊞' },
+  { label: '工作量看板', path: '/dashboard', icon: 'W' },
+  { label: '异常看板', path: '/anomaly-dashboard', icon: 'A' },
   {
     label: '异常管理',
     key: '/anomalies',
-    icon: '⚑',
+    icon: 'M',
     children: [
       { label: '出库异常', path: '/anomalies/outbound' },
       { label: '到仓不齐', path: '/anomalies/inbound' },
@@ -29,7 +29,7 @@ const menuGroups: MenuItem[] = [
   {
     label: '系统设置',
     key: '/settings',
-    icon: '⚙',
+    icon: 'S',
     children: [
       { label: '提醒配置', path: '/settings/alerts' },
     ],
@@ -40,10 +40,8 @@ function isGroup(item: MenuItem): item is GroupItem {
   return 'children' in item
 }
 
-// 当前所在分组自动展开
 const openedKeys = ['/' + route.path.split('/')[1]]
 
-// ── 路由变化时同步 Tab ────────────────────────────────────────────
 watch(
   () => route.path,
   (path) => {
@@ -55,22 +53,19 @@ watch(
   { immediate: true },
 )
 
-// ── Tab 操作 ─────────────────────────────────────────────────────
 function closeTab(path: string) {
   const target = tabsStore.closeTab(path)
   if (route.path === path) router.push(target)
 }
 
-// ── 面包屑 ───────────────────────────────────────────────────────
 function getBreadcrumbs() {
   const meta = route.meta as Record<string, string>
-  const items: { label: string; path?: string }[] = [{ label: '首页', path: '/dashboard' }]
+  const items: { label: string; path?: string }[] = [{ label: '工作量看板', path: '/dashboard' }]
   if (meta.groupTitle && route.path !== '/dashboard') items.push({ label: meta.groupTitle })
   if (meta.title && route.path !== '/dashboard') items.push({ label: meta.title, path: route.path })
   return items
 }
 
-// ── 退出登录 ─────────────────────────────────────────────────────
 function handleUserCommand(cmd: string) {
   if (cmd === 'logout') {
     tabsStore.reset()
@@ -82,16 +77,12 @@ function handleUserCommand(cmd: string) {
 
 <template>
   <div class="app-shell">
-
-    <!-- ══ 左侧侧边栏 ══ -->
     <aside class="sidebar">
-      <!-- 品牌 -->
       <div class="brand">
-        <span class="brand-icon">📊</span>
+        <span class="brand-icon">O</span>
         <span class="brand-name">Ops Monitor</span>
       </div>
 
-      <!-- 菜单 -->
       <el-menu
         :default-active="route.path"
         :default-openeds="openedKeys"
@@ -99,7 +90,6 @@ function handleUserCommand(cmd: string) {
         class="sidebar-menu"
       >
         <template v-for="item in menuGroups" :key="item.label">
-          <!-- 一级菜单项 -->
           <el-menu-item v-if="!isGroup(item)" :index="(item as LeafItem).path">
             <template #title>
               <span class="menu-icon">{{ (item as LeafItem).icon }}</span>
@@ -107,7 +97,6 @@ function handleUserCommand(cmd: string) {
             </template>
           </el-menu-item>
 
-          <!-- 二级分组 -->
           <el-sub-menu v-else :index="(item as GroupItem).key">
             <template #title>
               <span class="menu-icon">{{ (item as GroupItem).icon }}</span>
@@ -125,10 +114,7 @@ function handleUserCommand(cmd: string) {
       </el-menu>
     </aside>
 
-    <!-- ══ 右侧主区域 ══ -->
     <div class="main">
-
-      <!-- 顶部栏：面包屑 + 用户 -->
       <header class="topbar">
         <el-breadcrumb separator="/">
           <el-breadcrumb-item
@@ -161,7 +147,6 @@ function handleUserCommand(cmd: string) {
         </div>
       </header>
 
-      <!-- Tab 标签页 -->
       <nav class="tab-bar">
         <div
           v-for="tab in tabsStore.tabs"
@@ -170,7 +155,7 @@ function handleUserCommand(cmd: string) {
           :class="{ 'tab-active': route.path === tab.path }"
           @click="router.push(tab.path)"
         >
-          <span v-if="route.path === tab.path" class="tab-dot">●</span>
+          <span v-if="route.path === tab.path" class="tab-dot">•</span>
           <span class="tab-label">{{ tab.title }}</span>
           <button
             v-if="tab.closeable"
@@ -180,24 +165,20 @@ function handleUserCommand(cmd: string) {
         </div>
       </nav>
 
-      <!-- 页面内容 -->
       <main class="page-body">
         <router-view />
       </main>
     </div>
-
   </div>
 </template>
 
 <style scoped>
-/* ── 根容器：侧边栏固定宽，右侧占满 ── */
 .app-shell {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 180px 1fr;
 }
 
-/* ══ 侧边栏 ══ */
 .sidebar {
   background: #2d3a4a;
   display: flex;
@@ -227,7 +208,6 @@ function handleUserCommand(cmd: string) {
   letter-spacing: 0.3px;
 }
 
-/* el-menu 深色覆盖 */
 .sidebar-menu {
   background: transparent !important;
   border-right: none !important;
@@ -289,7 +269,6 @@ function handleUserCommand(cmd: string) {
   opacity: 0.7;
 }
 
-/* ══ 右侧主区域 ══ */
 .main {
   display: flex;
   flex-direction: column;
@@ -297,7 +276,6 @@ function handleUserCommand(cmd: string) {
   background: #f0f2f5;
 }
 
-/* ── 顶部栏 ── */
 .topbar {
   height: 50px;
   background: #ffffff;
@@ -360,7 +338,6 @@ function handleUserCommand(cmd: string) {
   color: #374151;
 }
 
-/* ── Tab 标签页栏 ── */
 .tab-bar {
   height: 40px;
   background: #ffffff;
@@ -437,7 +414,6 @@ function handleUserCommand(cmd: string) {
   color: #475569;
 }
 
-/* ── 页面内容 ── */
 .page-body {
   flex: 1;
   padding: 20px;

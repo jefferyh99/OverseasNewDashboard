@@ -1,6 +1,4 @@
-// ── 通用包装 ──────────────────────────────────────────────────────
-
-export interface ApiResponse<T> {
+﻿export interface ApiResponse<T> {
   success: boolean
   code: string
   message: string
@@ -15,8 +13,6 @@ export interface PagedList<T> {
   total: number
   items: T[]
 }
-
-// ── Auth ─────────────────────────────────────────────────────────
 
 export interface LoginRequest {
   username: string
@@ -43,8 +39,6 @@ export interface PermissionsData {
   menuPermissions: string[]
   buttonPermissions: string[]
 }
-
-// ── Dashboard ────────────────────────────────────────────────────
 
 export interface AlertChannelStatus {
   channelCode: string
@@ -112,7 +106,186 @@ export interface DashboardData {
   }>
 }
 
-// ── Anomalies ────────────────────────────────────────────────────
+export interface StatusSplit {
+  total: number
+  processed: number
+  pending: number
+}
+
+export interface MetricSplit {
+  total: number
+  processed: number
+  pending: number
+}
+
+export type TransportMode = 'sea' | 'air' | 'express' | 'truck'
+
+export interface InboundTransportRow {
+  transportMode: TransportMode
+  cartons: MetricSplit
+  weightKg: MetricSplit
+  volumeM3: MetricSplit
+  units: MetricSplit
+  skuCount: MetricSplit
+}
+
+export interface TomorrowInboundSummary {
+  totalCartons: number
+  totalWeightKg: number
+  totalVolumeM3: number
+  totalUnits: number
+  totalSkuCount: number
+}
+
+export interface TomorrowInboundTransportRow {
+  transportMode: TransportMode
+  totalCartons: number
+  totalWeightKg: number
+  totalVolumeM3: number
+  totalUnits: number
+  totalSkuCount: number
+}
+
+export interface FutureInboundForecastBar {
+  arrivalDate: string
+  totalCartons: number
+  totalWeightKg: number
+  totalVolumeM3: number
+  seaContainerCount: number
+  truckPalletCount: number
+}
+
+export interface WorkloadDashboardData {
+  warehouse: { code: string; name: string }
+  overdueTasks: Array<{ code: string; title: string; total: number }>
+  todayOutboundPackages: StatusSplit
+  todayShelvingSkus: StatusSplit
+  todayInboundSummary: {
+    totalCartons: MetricSplit
+    totalWeightKg: MetricSplit
+    totalVolumeM3: MetricSplit
+    totalUnits: MetricSplit
+    totalSkuCount: MetricSplit
+  }
+  todayInbound: InboundTransportRow[]
+  tomorrowInboundSummary: TomorrowInboundSummary
+  tomorrowInbound: TomorrowInboundTransportRow[]
+  futureInboundForecast: FutureInboundForecastBar[]
+}
+
+export interface WorkloadBaseQuery {
+  warehouseCode: string
+  dateStart: string
+  dateEnd: string
+}
+
+export interface OutboundPackageDetailItem {
+  orderId: string
+  customer: string
+  logisticsProvider: string
+  trackingNo: string
+  productService: string
+  shippingRule: string
+  orderTime: string
+  deadlineAt: string
+  actualOutboundTime?: string
+  processingStatus: 'processed' | 'pending'
+}
+
+export interface WorkloadOutboundQuery extends WorkloadBaseQuery {
+  processingStatus: 'all' | 'processed' | 'pending'
+  keyword?: string
+}
+
+export interface OutboundPackageDetailData {
+  summary: StatusSplit
+  items: OutboundPackageDetailItem[]
+}
+
+export interface SkuDetailItem {
+  inventoryCode: string
+  sku: string
+  customer: string
+  cartonId: string
+  asnId: string
+  transportMode: TransportMode
+  totalUnits: number
+  processedUnits: number
+  pendingUnits: number
+  arrivalTime: string
+  deadlineAt: string
+  actualShelvedAt?: string
+  processingStatus: 'processed' | 'pending'
+}
+
+export interface WorkloadSkuQuery extends WorkloadBaseQuery {
+  processingStatus: 'all' | 'processed' | 'pending'
+  transportMode?: TransportMode
+  keyword?: string
+}
+
+export interface SkuDetailData {
+  summary: StatusSplit
+  items: SkuDetailItem[]
+}
+
+export interface CartonDetailItem {
+  cartonId: string
+  asnId: string
+  transportMode: TransportMode
+  etaAt: string
+  arrivedAt?: string
+  totalWeightKg: number
+  totalVolumeM3: number
+  totalUnits: number
+  totalSkuCount: number
+  processingStatus: 'processed' | 'pending'
+}
+
+export interface WorkloadCartonQuery extends WorkloadBaseQuery {
+  processingStatus: 'all' | 'processed' | 'pending'
+  transportMode?: TransportMode
+  keyword?: string
+  context: 'today' | 'tomorrow'
+}
+
+export interface CartonDetailData {
+  summary: {
+    total: number
+    processed: number
+    pending: number
+    totalWeightKg: number
+    totalVolumeM3: number
+  }
+  items: CartonDetailItem[]
+}
+
+export interface FutureInboundVolumeItem {
+  arrivalDate: string
+  transportMode: TransportMode
+  totalCartons: number
+  totalWeightKg: number
+  totalVolumeM3: number
+  totalUnits: number
+  totalSkuCount: number
+  truckPalletCount: number | null
+  seaContainerCount: number | null
+}
+
+export interface FutureInboundVolumeQuery extends WorkloadBaseQuery {
+  transportMode?: TransportMode
+}
+
+export interface FutureInboundVolumeData {
+  summary: {
+    totalCartons: number
+    totalWeightKg: number
+    totalVolumeM3: number
+    seaContainerCount: number
+    truckPalletCount: number
+  }
+  items: FutureInboundVolumeItem[]
+}
 
 export interface AnomalySummary {
   total: number
@@ -140,6 +313,7 @@ export interface OutboundData {
 }
 
 export interface OutboundQuery {
+  warehouseCode?: string
   riskStatus?: string
   channel?: string
   customer?: string
@@ -171,6 +345,7 @@ export interface InboundData {
 }
 
 export interface InboundQuery {
+  warehouseCode?: string
   riskStatus?: string
   etaDateStart?: string
   etaDateEnd?: string
@@ -199,6 +374,7 @@ export interface ShelvingData {
 }
 
 export interface ShelvingQuery {
+  warehouseCode?: string
   riskStatus?: string
   arrivalDateStart?: string
   arrivalDateEnd?: string
@@ -207,8 +383,6 @@ export interface ShelvingQuery {
   sortBy?: string
   sortDirection?: string
 }
-
-// ── Settings ─────────────────────────────────────────────────────
 
 export interface LeadTimeConfig {
   monitorType: string
@@ -241,8 +415,6 @@ export interface AlertsConfigData {
   updatedAt: string
   updatedBy: string
 }
-
-// ── Diagnostics ──────────────────────────────────────────────────
 
 export interface DiagnosticsData {
   warehouse: { warehouseId: string; warehouseName: string }
