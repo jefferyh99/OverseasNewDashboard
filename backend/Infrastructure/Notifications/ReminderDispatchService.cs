@@ -67,7 +67,7 @@ public sealed class ReminderDispatchService(
         var msg = new NotificationMessage(
             Title: $"运营提醒 — 即将超时 {imminentCount} 条，已超时 {overdueCount} 条",
             Body: BuildTop3Body(toSend),
-            WarehouseName: "美国 1 号仓",
+            WarehouseName: "德国仓",
             ImminentCount: imminentCount,
             OverdueCount: overdueCount);
 

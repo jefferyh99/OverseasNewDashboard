@@ -111,7 +111,7 @@ public class DashboardController : ControllerBase
             IsPeakDay: f.CartonCount > avgCartons * 1.3)).ToList();
 
         var data = new DashboardResponse(
-            Warehouse: new("WH-US-001", "美国 1 号仓"),
+            Warehouse: new("WH-US-001", "德国仓"),
             BaseStatus: new(
                 LastSyncTime: lastSync,
                 SyncStatus: delayedDataFlag ? "delayed" : "success",

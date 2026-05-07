@@ -1,0 +1,392 @@
+<style>
+  .page-note {
+    margin-bottom: 18px;
+    color: #475569;
+    line-height: 1.6;
+  }
+  .wireframe {
+    border: 1px solid #cbd5e1;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  }
+  .wf-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #e2e8f0;
+    border-bottom: 1px solid #cbd5e1;
+  }
+  .wf-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .wf-tab {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .wf-tab.active {
+    background: #0f172a;
+    color: #fff;
+  }
+  .wf-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    color: #334155;
+  }
+  .wf-body {
+    padding: 20px;
+    display: grid;
+    gap: 18px;
+    background: #f8fafc;
+  }
+  .wf-section {
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    background: #fff;
+    padding: 16px;
+  }
+  .wf-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .wf-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .wf-section-desc {
+    font-size: 13px;
+    color: #64748b;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .mini-card {
+    border: 1px dashed #94a3b8;
+    border-radius: 14px;
+    padding: 14px;
+    background: #f8fafc;
+  }
+  .mini-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+  }
+  .stats-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .stat-box {
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #dbe4ee;
+    padding: 10px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .matrix-card {
+    margin-top: 14px;
+    border: 1px dashed #94a3b8;
+    border-radius: 14px;
+    padding: 14px;
+    background: #f8fafc;
+  }
+  .table-note {
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #64748b;
+  }
+  table.wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    color: #334155;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .wf-table th,
+  .wf-table td {
+    padding: 10px 8px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+    text-align: left;
+  }
+  .wf-table th {
+    background: #f1f5f9;
+    font-weight: 700;
+  }
+  .pair {
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .pair strong {
+    color: #0f172a;
+  }
+  .overdue-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .overdue-card {
+    border: 1px dashed #f59e0b;
+    border-radius: 14px;
+    padding: 16px;
+    background: #fff7ed;
+  }
+  .overdue-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #9a3412;
+    margin-bottom: 10px;
+  }
+  .overdue-count {
+    font-size: 30px;
+    font-weight: 800;
+    color: #c2410c;
+    margin-bottom: 8px;
+  }
+  .jump-note {
+    font-size: 12px;
+    color: #9a3412;
+  }
+</style>
+
+<h2>工作量看板线框 v1</h2>
+<p class="subtitle">先确认信息结构和展示层级，不看视觉细节。默认首页为工作量看板，异常看板单独保留。</p>
+<p class="page-note">
+  这版重点体现 3 件事：
+  1）先看今天要处理多少任务；
+  2）再看明天到仓压力；
+  3）最后看已超时但还没处理完的积压。
+</p>
+
+<div class="wireframe">
+  <div class="wf-topbar">
+    <div class="wf-tabs">
+      <div class="wf-tab active">工作量看板</div>
+      <div class="wf-tab">异常看板</div>
+      <div class="wf-tab">出库异常</div>
+      <div class="wf-tab">到仓不齐</div>
+      <div class="wf-tab">上架异常</div>
+    </div>
+    <div class="wf-meta">
+      <div class="pill">仓库切换：DE / ON</div>
+      <div class="pill">数据状态：正常</div>
+      <div class="pill">最近同步：15:20</div>
+    </div>
+  </div>
+
+  <div class="wf-body">
+    <div class="wf-section">
+      <div class="wf-section-header">
+        <div>
+          <div class="wf-section-title">今天待处理任务</div>
+          <div class="wf-section-desc">统一用“已处理 / 待处理”展示，但底层业务含义分别对应已出库、已到仓、已上架。</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <div class="mini-title">今天待出库包裹</div>
+          <div class="stats-3">
+            <div class="stat-box">
+              <div class="stat-label">总包裹量</div>
+              <div class="stat-value">1,280</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">已处理</div>
+              <div class="stat-value">860</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">待处理</div>
+              <div class="stat-value">420</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-title">今天待上架 SKU</div>
+          <div class="stats-3">
+            <div class="stat-box">
+              <div class="stat-label">总 SKU 数</div>
+              <div class="stat-value">3,420</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">已处理</div>
+              <div class="stat-value">2,170</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">待处理</div>
+              <div class="stat-value">1,250</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-card">
+        <div class="mini-title">今天待到仓</div>
+        <div class="stats-3" style="margin-bottom: 12px;">
+          <div class="stat-box">
+            <div class="stat-label">总箱数 / 已待</div>
+            <div class="stat-value" style="font-size:18px;">540 / 310 / 230</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">总重量 / 已待</div>
+            <div class="stat-value" style="font-size:18px;">7,800 / 4,350 / 3,450</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">总体积 / 已待</div>
+            <div class="stat-value" style="font-size:18px;">128 / 73 / 55</div>
+          </div>
+        </div>
+        <div class="table-note">下方按货运方式展开。每个指标单元格内直接显示“已处理 / 待处理”，避免 10 多列过宽。</div>
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>货运方式</th>
+              <th>箱数</th>
+              <th>重量(kg)</th>
+              <th>体积(m³)</th>
+              <th>件数</th>
+              <th>SKU数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>海运</td>
+              <td class="pair"><strong>已</strong> 110<br><strong>待</strong> 70</td>
+              <td class="pair"><strong>已</strong> 1,580<br><strong>待</strong> 1,060</td>
+              <td class="pair"><strong>已</strong> 28<br><strong>待</strong> 19</td>
+              <td class="pair"><strong>已</strong> 3,500<br><strong>待</strong> 2,160</td>
+              <td class="pair"><strong>已</strong> 680<br><strong>待</strong> 410</td>
+            </tr>
+            <tr>
+              <td>空运</td>
+              <td class="pair"><strong>已</strong> 90<br><strong>待</strong> 55</td>
+              <td class="pair"><strong>已</strong> 1,020<br><strong>待</strong> 620</td>
+              <td class="pair"><strong>已</strong> 14<br><strong>待</strong> 9</td>
+              <td class="pair"><strong>已</strong> 2,260<br><strong>待</strong> 1,240</td>
+              <td class="pair"><strong>已</strong> 510<br><strong>待</strong> 280</td>
+            </tr>
+            <tr>
+              <td>快递</td>
+              <td class="pair"><strong>已</strong> 62<br><strong>待</strong> 48</td>
+              <td class="pair"><strong>已</strong> 880<br><strong>待</strong> 740</td>
+              <td class="pair"><strong>已</strong> 16<br><strong>待</strong> 12</td>
+              <td class="pair"><strong>已</strong> 1,820<br><strong>待</strong> 1,100</td>
+              <td class="pair"><strong>已</strong> 430<br><strong>待</strong> 260</td>
+            </tr>
+            <tr>
+              <td>卡派</td>
+              <td class="pair"><strong>已</strong> 48<br><strong>待</strong> 57</td>
+              <td class="pair"><strong>已</strong> 870<br><strong>待</strong> 1,030</td>
+              <td class="pair"><strong>已</strong> 15<br><strong>待</strong> 15</td>
+              <td class="pair"><strong>已</strong> 1,460<br><strong>待</strong> 1,520</td>
+              <td class="pair"><strong>已</strong> 340<br><strong>待</strong> 300</td>
+            </tr>
+            <tr>
+              <td><strong>总计</strong></td>
+              <td class="pair"><strong>已</strong> 310<br><strong>待</strong> 230</td>
+              <td class="pair"><strong>已</strong> 4,350<br><strong>待</strong> 3,450</td>
+              <td class="pair"><strong>已</strong> 73<br><strong>待</strong> 55</td>
+              <td class="pair"><strong>已</strong> 9,040<br><strong>待</strong> 6,020</td>
+              <td class="pair"><strong>已</strong> 1,960<br><strong>待</strong> 1,250</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="wf-section">
+      <div class="wf-section-header">
+        <div>
+          <div class="wf-section-title">明天待处理任务</div>
+          <div class="wf-section-desc">MVP 当前只展示明天待到仓，模块名先按业务习惯保留。</div>
+        </div>
+      </div>
+
+      <div class="matrix-card" style="margin-top: 0;">
+        <div class="mini-title">明天待到仓</div>
+        <div class="table-note">结构与“今天待到仓”一致，方便主管横向比较今天与明天的压力。</div>
+        <table class="wf-table">
+          <thead>
+            <tr>
+              <th>货运方式</th>
+              <th>箱数</th>
+              <th>重量(kg)</th>
+              <th>体积(m³)</th>
+              <th>件数</th>
+              <th>SKU数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>海运 / 空运 / 快递 / 卡派</td>
+              <td colspan="5">与今天待到仓同结构展示：总计 + 分货运方式 + 每格已处理 / 待处理</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="wf-section">
+      <div class="wf-section-header">
+        <div>
+          <div class="wf-section-title">已超时待处理任务</div>
+          <div class="wf-section-desc">这里只看“已经超时且仍未处理完成”的对象，不放明细，点击后跳到对应异常页并自动带 overdue 条件。</div>
+        </div>
+      </div>
+
+      <div class="overdue-grid">
+        <div class="overdue-card">
+          <div class="overdue-title">出库异常</div>
+          <div class="overdue-count">27</div>
+          <div class="jump-note">点击跳转：当前仓库 + 已超时</div>
+        </div>
+        <div class="overdue-card">
+          <div class="overdue-title">到仓不齐</div>
+          <div class="overdue-count">11</div>
+          <div class="jump-note">点击跳转：当前仓库 + 已超时</div>
+        </div>
+        <div class="overdue-card">
+          <div class="overdue-title">上架异常</div>
+          <div class="overdue-count">19</div>
+          <div class="jump-note">点击跳转：当前仓库 + 已超时</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

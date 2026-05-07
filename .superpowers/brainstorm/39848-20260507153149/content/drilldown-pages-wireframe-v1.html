@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>下沉页线框（已调整）</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --line: #d9e1ec;
+      --muted: #6b7280;
+      --text: #0f172a;
+      --accent: #1d4ed8;
+      --warn: #c2410c;
+      --soft: #eef4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .hero {
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .top-note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .stack {
+      display: grid;
+      gap: 24px;
+      margin-top: 22px;
+    }
+    .mock-page {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    .mock-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 22px;
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .head-left h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+    .head-left p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #bfd0ea;
+      background: #fff;
+      font-size: 12px;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .content {
+      padding: 20px 22px 22px;
+      display: grid;
+      gap: 16px;
+      background: #fbfcfe;
+    }
+    .toolbar,
+    .stats,
+    .table-wrap,
+    .mode-note {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .toolbar {
+      padding: 16px;
+    }
+    .toolbar-title,
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .filter-box,
+    .action-box {
+      min-height: 42px;
+      border: 1px dashed #b8c5d8;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+    }
+    .action-box {
+      justify-content: center;
+      font-weight: 700;
+      background: #eff6ff;
+      border-style: solid;
+      color: var(--accent);
+    }
+    .stats {
+      padding: 16px;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stats-stack {
+      display: grid;
+      gap: 14px;
+    }
+    .mini-mode-title {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+    }
+    .stat-card {
+      border: 1px dashed #b8c5d8;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 14px;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .mode-note {
+      padding: 16px;
+    }
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mode-box {
+      border: 1px dashed #b8c5d8;
+      border-radius: 14px;
+      padding: 14px;
+      background: #f8fafc;
+    }
+    .mode-box h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+    .mode-box p {
+      margin: 0;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .table-wrap {
+      padding: 16px;
+    }
+    .table-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .table-title h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    .table-title .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #e5ebf3;
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th {
+      background: #f3f7fb;
+      color: #334155;
+      font-weight: 700;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .tag.todo {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .tag.done {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .subtle {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <h1>3 个下沉页线框</h1>
+      <p>这一版只看结构，不看视觉细节。目标是确认 3 个详情页是否已经足够同构，同时又保留各自业务重点。</p>
+      <div class="top-note">
+        当前统一规则：
+        1. 3 个页面都支持查询 + 导出；
+        2. 默认看全部对象，不默认只看待处理；
+        3. 都从首页带入当前仓库和时间条件；
+        4. 列表粒度分别为包裹、SKU 作业明细行、箱子。
+      </div>
+    </div>
+
+    <div class="stack">
+      <section class="mock-page">
+        <div class="mock-head">
+          <div class="head-left">
+            <h2>出库包裹详情页</h2>
+            <p>承接入口：今天待出库包裹 → 查看全部</p>
+          </div>
+          <div class="chip-row">
+            <div class="chip">默认仓库：DE / ON</div>
+            <div class="chip">默认时间：今天</div>
+            <div class="chip">默认状态：全部</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="toolbar">
+            <div class="toolbar-title">筛选区</div>
+            <div class="filters">
+              <div class="filter-box">仓库</div>
+              <div class="filter-box">时间范围</div>
+              <div class="filter-box">处理状态：全部 / 已处理 / 待处理</div>
+              <div class="filter-box">关键词：包裹号 / 订单号</div>
+              <div class="action-box">查询</div>
+              <div class="action-box">重置 / 导出</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="section-title">统计条</div>
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="label">总包裹量</div>
+                <div class="value">1,280</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">已处理</div>
+                <div class="value">860</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">待处理</div>
+                <div class="value">420</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-title">
+              <h3>列表区：一行一个包裹</h3>
+              <div class="hint">默认排序：待处理在前，同状态按应完成出库时间升序</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>订单号</th>
+                  <th>客户</th>
+                  <th>物流商</th>
+                  <th>挂号</th>
+                  <th>产品服务</th>
+                  <th>发货规则</th>
+                  <th>下单时间</th>
+                  <th>应完成出库时间</th>
+                  <th>实际出库时间</th>
+                  <th>处理状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>SO-20260507-001</td>
+                  <td>客户A</td>
+                  <td>DHL</td>
+                  <td>RR123456789DE</td>
+                  <td>Standard</td>
+                  <td>Rule-A</td>
+                  <td>05-07 08:21</td>
+                  <td>05-07 15:00</td>
+                  <td class="subtle">-</td>
+                  <td><span class="tag todo">待处理</span></td>
+                </tr>
+                <tr>
+                  <td>SO-20260507-002</td>
+                  <td>客户B</td>
+                  <td>UPS</td>
+                  <td>1Z-0002</td>
+                  <td>Express</td>
+                  <td>Rule-B</td>
+                  <td>05-07 07:35</td>
+                  <td>05-07 14:00</td>
+                  <td>05-07 11:46</td>
+                  <td><span class="tag done">已处理</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-page">
+        <div class="mock-head">
+          <div class="head-left">
+            <h2>SKU 详情页</h2>
+            <p>承接入口：今天待上架 SKU → 查看全部</p>
+          </div>
+          <div class="chip-row">
+            <div class="chip">默认仓库：DE / ON</div>
+            <div class="chip">默认时间：今天</div>
+            <div class="chip">列表粒度：SKU 作业明细行</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="toolbar">
+            <div class="toolbar-title">筛选区</div>
+            <div class="filters">
+              <div class="filter-box">仓库</div>
+              <div class="filter-box">时间范围</div>
+              <div class="filter-box">处理状态：全部 / 已处理 / 待处理</div>
+              <div class="filter-box">货运方式：海运 / 空运 / 快递 / 卡派</div>
+              <div class="filter-box">关键词：库存编码 / SKU / 箱号 / 入库单号</div>
+              <div class="action-box">查询 / 重置 / 导出</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="section-title">统计条</div>
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="label">总 SKU 数</div>
+                <div class="value">3,420</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">已处理</div>
+                <div class="value">2,170</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">待处理</div>
+                <div class="value">1,250</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-title">
+              <h3>列表区：一行一个 SKU 作业明细行</h3>
+              <div class="hint">默认排序：待处理在前，同状态按应完成上架时间升序</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>库存编码</th>
+                  <th>SKU</th>
+                  <th>客户</th>
+                  <th>所属箱号</th>
+                  <th>所属入库单号</th>
+                  <th>货运方式</th>
+                  <th>总件数</th>
+                  <th>已上架数量</th>
+                  <th>待上架数量</th>
+                  <th>到仓时间</th>
+                  <th>应完成上架时间</th>
+                  <th>实际上架时间</th>
+                  <th>处理状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>SKU-1001</td>
+                  <td>HC-蓝牙耳机</td>
+                  <td>客户A</td>
+                  <td>CTN-0001</td>
+                  <td>ASN-20260507-01</td>
+                  <td>空运</td>
+                  <td>120</td>
+                  <td>30</td>
+                  <td>90</td>
+                  <td>05-07 09:10</td>
+                  <td>05-08 09:10</td>
+                  <td class="subtle">-</td>
+                  <td><span class="tag todo">待处理</span></td>
+                </tr>
+                <tr>
+                  <td>SKU-1002</td>
+                  <td>HC-手机壳</td>
+                  <td>客户B</td>
+                  <td>CTN-0002</td>
+                  <td>ASN-20260507-01</td>
+                  <td>海运</td>
+                  <td>300</td>
+                  <td>300</td>
+                  <td>0</td>
+                  <td>05-07 08:35</td>
+                  <td>05-08 08:35</td>
+                  <td>05-07 13:05</td>
+                  <td><span class="tag done">已处理</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-page">
+        <div class="mock-head">
+          <div class="head-left">
+            <h2>箱子详情页</h2>
+            <p>承接入口：今天待到仓箱子 / 明天待到仓箱子 → 查看全部</p>
+          </div>
+          <div class="chip-row">
+            <div class="chip">共用一个页面</div>
+            <div class="chip">默认仓库：DE / ON</div>
+            <div class="chip">默认时间：今天 或 明天</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="mode-note">
+            <div class="section-title">两个入口的默认模式</div>
+            <div class="mode-grid">
+              <div class="mode-box">
+                <h3>今天入口</h3>
+                <p>默认带：当前仓库 + 今天。统计条重点看总箱数、已处理、待处理。</p>
+              </div>
+              <div class="mode-box">
+                <h3>明天入口</h3>
+                <p>默认带：当前仓库 + 明天。统计条重点看总箱数、总重量、总体积。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-title">筛选区</div>
+            <div class="filters">
+              <div class="filter-box">仓库</div>
+              <div class="filter-box">时间范围</div>
+              <div class="filter-box">货运方式：海运 / 空运 / 快递 / 卡派</div>
+              <div class="filter-box">处理状态：全部 / 已处理 / 待处理</div>
+              <div class="filter-box">关键词：箱号 / 入库单号</div>
+              <div class="action-box">查询 / 重置 / 导出</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="section-title">统计条</div>
+            <div class="stats-stack">
+              <div>
+                <div class="mini-mode-title">今天默认统计</div>
+                <div class="stat-grid">
+                  <div class="stat-card">
+                    <div class="label">总箱数</div>
+                    <div class="value">540</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">已处理</div>
+                    <div class="value">310</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">待处理</div>
+                    <div class="value">230</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="mini-mode-title">明天默认统计</div>
+                <div class="stat-grid">
+                  <div class="stat-card">
+                    <div class="label">总箱数</div>
+                    <div class="value">464</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">总重量(kg)</div>
+                    <div class="value">6,360</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">总体积(m3)</div>
+                    <div class="value">93</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-title">
+              <h3>列表区：一行一个箱子</h3>
+              <div class="hint">默认排序：待处理在前，同状态按预计到仓时间升序</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>箱号</th>
+                  <th>入库单号</th>
+                  <th>货运方式</th>
+                  <th>预计到仓时间</th>
+                  <th>实际到仓时间</th>
+                  <th>总重量(kg)</th>
+                  <th>总体积(m3)</th>
+                  <th>总件数</th>
+                  <th>总 SKU 数</th>
+                  <th>处理状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>CTN-0001</td>
+                  <td>ASN-20260507-01</td>
+                  <td>空运</td>
+                  <td>05-07 12:00</td>
+                  <td class="subtle">-</td>
+                  <td>85</td>
+                  <td>1.6</td>
+                  <td>320</td>
+                  <td>14</td>
+                  <td><span class="tag todo">待处理</span></td>
+                </tr>
+                <tr>
+                  <td>CTN-0002</td>
+                  <td>ASN-20260508-03</td>
+                  <td>海运</td>
+                  <td>05-08 09:30</td>
+                  <td>05-08 08:55</td>
+                  <td>210</td>
+                  <td>3.4</td>
+                  <td>680</td>
+                  <td>26</td>
+                  <td><span class="tag done">已处理</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

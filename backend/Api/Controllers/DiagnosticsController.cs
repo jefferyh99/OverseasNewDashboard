@@ -14,7 +14,7 @@ public class DiagnosticsController : ControllerBase
     public IActionResult GetOverview()
     {
         var data = new DiagnosticsOverviewResponse(
-            Warehouse: new("WH-US-001", "美国 1 号仓"),
+            Warehouse: new("WH-US-001", "德国"),
             Sync: new(
                 LastSyncTime: DateTimeOffset.Now.AddMinutes(-30),
                 SyncStatus: "success",

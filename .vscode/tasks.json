@@ -9,6 +9,18 @@
 			"group": "build"
 		},
 		{
+			"label": "Stop Backend API",
+			"type": "shell",
+			"command": "$conn = Get-NetTCPConnection -LocalPort 5092 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if (-not $conn) { Write-Output 'No dotnet process listening on port 5092'; exit 0 }; $proc = Get-Process -Id $conn.OwningProcess -ErrorAction Stop; if ($proc.ProcessName -ne 'dotnet') { Write-Error ('Refusing to stop process ''{0}'' on port 5092' -f $proc.ProcessName); exit 1 }; Stop-Process -Id $proc.Id -Force; Write-Output ('Stopped dotnet process {0} on port 5092' -f $proc.Id)",
+			"group": "build"
+		},
+		{
+			"label": "Force Stop Port 5092",
+			"type": "shell",
+			"command": "$conn = Get-NetTCPConnection -LocalPort 5092 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if (-not $conn) { Write-Output 'No listening process on port 5092'; exit 0 }; Stop-Process -Id $conn.OwningProcess -Force -ErrorAction Stop; Write-Output ('Stopped process {0} on port 5092' -f $conn.OwningProcess)",
+			"group": "build"
+		},
+		{
 			"label": "Run Frontend Dev Server",
 			"type": "shell",
 			"command": "Set-Location 'frontend'; npm run dev",
