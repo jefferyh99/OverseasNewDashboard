@@ -125,6 +125,8 @@ public sealed record FutureInboundVolumeSummary(
     int TotalCartons,
     double TotalWeightKg,
     double TotalVolumeM3,
+    int TotalUnits,
+    int TotalSkuCount,
     int SeaContainerCount,
     int TruckPalletCount);
 

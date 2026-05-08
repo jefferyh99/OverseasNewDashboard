@@ -4,6 +4,14 @@ import { useRoute } from 'vue-router'
 import { anomaliesApi } from '@/services/api'
 import type { OutboundItem, OutboundQuery } from '@/services/types'
 
+function defaultRange(): [string, string] {
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(start.getDate() - 6)
+  const fmt = (d: Date) => d.toISOString().slice(0, 10)
+  return [fmt(start), fmt(end)]
+}
+
 const route = useRoute()
 const loading = ref(false)
 const total = ref(0)
@@ -13,6 +21,7 @@ const channels = ref<string[]>([])
 const customers = ref<string[]>([])
 const tableData = ref<OutboundItem[]>([])
 
+const _dr = defaultRange()
 const query = reactive<OutboundQuery>({
   warehouseCode: 'DE',
   pageNo: 1,
@@ -20,16 +29,27 @@ const query = reactive<OutboundQuery>({
   riskStatus: undefined,
   channel: undefined,
   customer: undefined,
+  orderTimeStart: _dr[0],
+  orderTimeEnd: _dr[1],
   sortBy: 'deadlineAt',
   sortDirection: 'asc',
 })
 
+const orderTimeRange = ref<[string, string]>([query.orderTimeStart!, query.orderTimeEnd!])
+
 function applyRouteFilters() {
   query.warehouseCode = String(route.query.warehouseCode ?? 'DE')
   query.riskStatus = route.query.riskStatus ? String(route.query.riskStatus) : undefined
+  if (route.query.orderTimeStart) {
+    query.orderTimeStart = String(route.query.orderTimeStart)
+    query.orderTimeEnd = String(route.query.orderTimeEnd ?? route.query.orderTimeStart)
+    orderTimeRange.value = [query.orderTimeStart, query.orderTimeEnd!]
+  }
 }
 
 async function fetchData() {
+  query.orderTimeStart = orderTimeRange.value?.[0] || undefined
+  query.orderTimeEnd = orderTimeRange.value?.[1] || undefined
   loading.value = true
   try {
     const res = await anomaliesApi.outbound({
@@ -55,8 +75,10 @@ function reset() {
   query.riskStatus = undefined
   query.channel = undefined
   query.customer = undefined
-  query.orderTimeStart = undefined
-  query.orderTimeEnd = undefined
+  const dr = defaultRange()
+  orderTimeRange.value = dr
+  query.orderTimeStart = dr[0]
+  query.orderTimeEnd = dr[1]
   query.pageNo = 1
   fetchData()
 }
@@ -102,6 +124,16 @@ function timeTagType(s: string) {
       <el-select v-model="query.customer" placeholder="客户" clearable size="small" style="width: 120px">
         <el-option v-for="c in customers" :key="c" :label="c" :value="c" />
       </el-select>
+      <el-date-picker
+        v-model="orderTimeRange"
+        type="daterange"
+        value-format="YYYY-MM-DD"
+        range-separator="至"
+        start-placeholder="下单开始日期"
+        end-placeholder="下单结束日期"
+        size="small"
+        style="width: 280px"
+      />
       <el-button size="small" type="primary" @click="fetchData">查询</el-button>
       <el-button size="small" @click="reset">重置</el-button>
     </div>

@@ -289,6 +289,8 @@ export interface FutureInboundVolumeData {
     totalCartons: number
     totalWeightKg: number
     totalVolumeM3: number
+    totalUnits: number
+    totalSkuCount: number
     seaContainerCount: number
     truckPalletCount: number
   }

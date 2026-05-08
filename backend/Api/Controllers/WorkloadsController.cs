@@ -108,6 +108,8 @@ public class WorkloadsController : ControllerBase
                 TotalCartons: items.Sum(i => i.TotalCartons),
                 TotalWeightKg: items.Sum(i => i.TotalWeightKg),
                 TotalVolumeM3: items.Sum(i => i.TotalVolumeM3),
+                TotalUnits: items.Sum(i => i.TotalUnits),
+                TotalSkuCount: items.Sum(i => i.TotalSkuCount),
                 SeaContainerCount: items.Sum(i => i.SeaContainerCount ?? 0),
                 TruckPalletCount: items.Sum(i => i.TruckPalletCount ?? 0)),
             Items: items);

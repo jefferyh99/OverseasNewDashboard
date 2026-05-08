@@ -19,10 +19,15 @@ async function loadData() {
   }
 }
 
+function todayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
+
 function goAnomalyPage(type: 'outbound' | 'inbound' | 'shelving') {
+  const today = todayStr()
   router.push({
     path: `/anomalies/${type}`,
-    query: { warehouseCode: warehouseCode.value },
+    query: { warehouseCode: warehouseCode.value, orderTimeStart: today, orderTimeEnd: today },
   })
 }
 

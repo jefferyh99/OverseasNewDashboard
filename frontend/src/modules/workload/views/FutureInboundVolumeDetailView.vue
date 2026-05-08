@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { workloadApi } from '@/services/api'
 import type { FutureInboundVolumeData, FutureInboundVolumeItem, TransportMode, WorkloadBaseQuery } from '@/services/types'
@@ -16,6 +16,8 @@ const summary = ref<FutureInboundVolumeData['summary']>({
   totalCartons: 0,
   totalWeightKg: 0,
   totalVolumeM3: 0,
+  totalUnits: 0,
+  totalSkuCount: 0,
   seaContainerCount: 0,
   truckPalletCount: 0,
 })
@@ -70,6 +72,9 @@ function exportData() {
 }
 
 onMounted(fetchData)
+
+const computedTotalUnits = computed(() => rows.value.reduce((sum, r) => sum + r.totalUnits, 0))
+const computedTotalSkuCount = computed(() => rows.value.reduce((sum, r) => sum + r.totalSkuCount, 0))
 </script>
 
 <template>
@@ -102,7 +107,15 @@ onMounted(fetchData)
       </div>
       <div class="stat-box">
         <div class="stat-label">总体积 (m³)</div>
-        <div class="stat-value">{{ summary.totalVolumeM3 }}</div>
+        <div class="stat-value">{{ Number(summary.totalVolumeM3).toFixed(4) }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总件数</div>
+        <div class="stat-value">{{ computedTotalUnits }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总 SKU 数</div>
+        <div class="stat-value">{{ computedTotalSkuCount }}</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">海运柜数</div>
@@ -149,7 +162,7 @@ onMounted(fetchData)
 
 .stat-row {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 16px;
 }
