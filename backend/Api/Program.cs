@@ -2,6 +2,7 @@ using OpsMonitor.Infrastructure;
 using OpsMonitor.Api.Middleware;
 using OpsMonitor.Api.Auth;
 using OpsMonitor.Api.BackgroundServices;
+using OpsMonitor.Application.Settings;
 using OpsMonitor.Application.Notifications;
 using OpsMonitor.Infrastructure.Notifications;
 using OpsMonitor.Infrastructure.Persistence;
@@ -16,6 +17,7 @@ builder.Host.UseSerilog((ctx, cfg) =>
 
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<AlertsSettingsStore>();
 
 // Application services
 builder.Services.AddScoped<IAnomalyDataSource, MockAnomalyDataSource>();
