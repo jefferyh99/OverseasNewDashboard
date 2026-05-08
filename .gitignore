@@ -50,9 +50,3 @@ backend/TestResults/
 coverage/
 *.coverage
 
-# IDE specific
-.superpowers/
-.vscode/
-.docs/
-mockups/
-.codex-runtime/
