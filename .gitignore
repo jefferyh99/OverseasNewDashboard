@@ -49,3 +49,10 @@ backend/TestResults/
 # Shared tooling outputs
 coverage/
 *.coverage
+
+# IDE specific
+.superpower/
+.vscode/
+.docs/
+mockups/
+.codex-runtime/
