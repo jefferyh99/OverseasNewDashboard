@@ -416,9 +416,19 @@ export interface AlertChannelConfig {
   enabled: boolean
 }
 
+export interface OutboundRuleConfig {
+  cutoffTimeStandard: string
+  cutoffTimeDaylight: string
+  overdueTime: string
+}
+
 export interface AlertsConfigData {
   warehouseId: string
+  timeZoneId: string
+  weekendDays: string[]
+  holidayDates: string[]
   leadTimes: LeadTimeConfig[]
+  outboundRule: OutboundRuleConfig
   severityThresholds: SeverityThreshold[]
   receivers: AlertReceivers
   channels: AlertChannelConfig[]

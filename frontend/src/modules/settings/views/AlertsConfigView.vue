@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { settingsApi } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
@@ -9,6 +9,12 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const saving = ref(false)
 const config = ref<AlertsConfigData | null>(null)
+const outboundLeadTime = computed(
+  () => config.value?.leadTimes.find(item => item.monitorType === 'outbound') ?? null,
+)
+const otherLeadTimes = computed(
+  () => config.value?.leadTimes.filter(item => item.monitorType !== 'outbound') ?? [],
+)
 
 onMounted(async () => {
   loading.value = true
@@ -47,11 +53,64 @@ function monitorTypeLabel(t: string) {
 
   <div v-else-if="config" class="settings-page">
 
+    <!-- 出库规则配置 -->
+    <div class="section-card">
+      <div class="section-title">出库规则配置</div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>仓库时区</label>
+          <el-input v-model="config.timeZoneId" />
+        </div>
+        <div class="field-row">
+          <label>冬令时截单时间</label>
+          <el-input v-model="config.outboundRule.cutoffTimeStandard" />
+        </div>
+        <div class="field-row">
+          <label>夏令时截单时间</label>
+          <el-input v-model="config.outboundRule.cutoffTimeDaylight" />
+        </div>
+        <div class="field-row">
+          <label>超时时点</label>
+          <el-input v-model="config.outboundRule.overdueTime" />
+        </div>
+        <div v-if="outboundLeadTime" class="field-row">
+          <label>出库预警提前量（小时）</label>
+          <el-input-number v-model="outboundLeadTime.leadTimeHours" :min="1" :max="72" size="small" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 工作日历配置 -->
+    <div class="section-card">
+      <div class="section-title">工作日历配置</div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>周末定义</label>
+          <el-select v-model="config.weekendDays" multiple>
+            <el-option label="Saturday" value="Saturday" />
+            <el-option label="Sunday" value="Sunday" />
+          </el-select>
+        </div>
+        <div class="field-row">
+          <label>法定节假日</label>
+          <div class="tag-edit">
+            <el-tag
+              v-for="(holiday, i) in config.holidayDates"
+              :key="holiday"
+              closable
+              @close="config!.holidayDates.splice(i, 1)"
+              style="margin-right:6px;margin-bottom:6px"
+            >{{ holiday }}</el-tag>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 提前预警时长 -->
     <div class="section-card">
       <div class="section-title">提前预警时长（小时）</div>
       <div class="field-grid">
-        <div v-for="lt in config.leadTimes" :key="lt.monitorType" class="field-row">
+        <div v-for="lt in otherLeadTimes" :key="lt.monitorType" class="field-row">
           <label>{{ monitorTypeLabel(lt.monitorType) }}</label>
           <el-input-number v-model="lt.leadTimeHours" :min="1" :max="72" size="small" />
         </div>
