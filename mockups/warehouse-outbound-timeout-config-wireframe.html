@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海外仓出库超时规则配置线框原型</title>
+  <style>
+    :root {
+      --bg: #f4f2ee;
+      --panel: #ffffff;
+      --line: #1f1f1f;
+      --muted: #666666;
+      --soft: #ece9e2;
+      --soft-2: #ddddda;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      color: var(--line);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 20%),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 34px,
+          rgba(0, 0, 0, 0.03) 34px,
+          rgba(0, 0, 0, 0.03) 35px
+        ),
+        var(--bg);
+    }
+
+    h1, h2, h3, h4, p {
+      margin: 0;
+    }
+
+    .page {
+      max-width: 1460px;
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .intro,
+    .wireframe {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .intro {
+      padding: 22px 24px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .intro p,
+    .muted,
+    .small {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .small {
+      font-size: 12px;
+    }
+
+    .tags,
+    .crumbs,
+    .toolbar,
+    .kpi-row,
+    .field-grid,
+    .calendar-grid,
+    .section-stack,
+    .flow-row,
+    .cases-grid,
+    .table-head,
+    .table-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tags {
+      grid-template-columns: repeat(3, max-content);
+    }
+
+    .tag,
+    .chip,
+    .pill,
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      font-size: 12px;
+    }
+
+    .crumbs {
+      grid-template-columns: repeat(3, max-content);
+    }
+
+    .wireframe {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .head-left,
+    .head-right,
+    .panel,
+    .aside,
+    .case-card,
+    .kpi-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .head-left {
+      max-width: 900px;
+    }
+
+    .head-right {
+      min-width: 260px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.82fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel,
+    .aside,
+    .case-card,
+    .kpi-card {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .panel.soft,
+    .kpi-card,
+    .case-card {
+      background: var(--soft);
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title h3 {
+      font-size: 15px;
+    }
+
+    .kpi-row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .kpi-card strong {
+      font-size: 18px;
+    }
+
+    .toolbar {
+      grid-template-columns: repeat(4, max-content);
+      align-items: center;
+    }
+
+    .field-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field {
+      border: 1px dashed var(--line);
+      padding: 10px;
+      background: #fff;
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .input-box,
+    .list-box,
+    .text-box {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .calendar-grid {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+
+    .holiday-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .holiday-row {
+      border: 1px dashed var(--line);
+      background: #fff;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .flow-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .flow-box {
+      border: 1px solid var(--line);
+      background: #fff;
+      min-height: 112px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .flow-box strong {
+      font-size: 14px;
+    }
+
+    .arrow {
+      align-self: center;
+      justify-self: center;
+      font-size: 20px;
+      color: var(--muted);
+    }
+
+    .table-head,
+    .table-row {
+      grid-template-columns: 1.1fr 1fr 0.8fr 0.9fr 1.1fr 0.9fr;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .table-head {
+      border-bottom: 1px solid var(--soft-2);
+      padding-bottom: 8px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .table-row {
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--soft-2);
+    }
+
+    .cases-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .aside ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .footer-note {
+      border: 1px dashed var(--line);
+      background: #fff;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1120px) {
+      body {
+        padding: 18px;
+      }
+
+      .layout,
+      .kpi-row,
+      .field-grid,
+      .calendar-grid,
+      .flow-row,
+      .cases-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .head {
+        flex-direction: column;
+      }
+
+      .toolbar,
+      .tags,
+      .crumbs {
+        grid-template-columns: 1fr;
+      }
+
+      .table-head,
+      .table-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="intro">
+      <div class="tags">
+        <span class="tag">低保真</span>
+        <span class="tag">配置页线框</span>
+        <span class="tag">仓库级规则</span>
+      </div>
+      <h1>海外仓出库超时规则配置线框原型</h1>
+      <p>这份原型只聚焦这次新增的“按仓库配置出库超时规则”能力，不混入其他监控模块。页面重点展示配置结构、规则预览、德国仓样例和节假日维护方式，方便你先确认信息架构是否顺手。</p>
+      <div class="crumbs">
+        <span class="crumb">01 配置总览</span>
+        <span class="crumb">02 规则计算预览</span>
+        <span class="crumb">03 德国仓样例</span>
+      </div>
+    </section>
+
+    <article class="wireframe">
+      <div class="head">
+        <div class="head-left">
+          <span class="tag">页面 A</span>
+          <h2>仓库出库超时规则配置页</h2>
+          <p>这页给运营或管理员维护单个仓库的时区、工作日历、截单时间、超时时点和预警提前量。结构上延续现有 settings 页的单页卡片式布局，只是在“提醒配置”之外新增“出库规则配置”。</p>
+        </div>
+        <div class="head-right">
+          <span class="pill">入口建议：设置中心 &gt; 告警配置 &gt; 出库规则</span>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card">当前仓库<strong>DE Germany</strong><span class="small">单仓独立配置</span></div>
+        <div class="kpi-card">当前时区<strong>Europe/Berlin</strong><span class="small">自动处理夏冬令时</span></div>
+        <div class="kpi-card">超时时点<strong>18:00</strong><span class="small">仓库级配置</span></div>
+        <div class="kpi-card">预警提前量<strong>60 分钟</strong><span class="small">即将超时来源</span></div>
+      </div>
+
+      <div class="layout">
+        <div class="section-stack">
+          <div class="panel">
+            <div class="section-title">
+              <h3>顶部工具条</h3>
+              <span class="muted">先选仓，再维护规则</span>
+            </div>
+            <div class="toolbar">
+              <span class="chip">仓库选择：DE Germany</span>
+              <span class="chip">复制上一仓配置</span>
+              <span class="chip">恢复草稿</span>
+              <span class="chip">保存配置</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title">
+              <h3>基础时间配置</h3>
+              <span class="muted">只保留真正参与计算的字段</span>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label>仓库时区</label>
+                <div class="input-box">Europe/Berlin</div>
+              </div>
+              <div class="field">
+                <label>出库预警提前量</label>
+                <div class="input-box">60 分钟</div>
+              </div>
+              <div class="field">
+                <label>冬令时截单时间</label>
+                <div class="input-box">16:00</div>
+              </div>
+              <div class="field">
+                <label>夏令时截单时间</label>
+                <div class="input-box">15:00</div>
+              </div>
+              <div class="field">
+                <label>超时时点</label>
+                <div class="input-box">18:00</div>
+              </div>
+              <div class="field">
+                <label>备注说明</label>
+                <div class="text-box">德国仓允许加班处理，所以超时看 18:00，不看 17:00 下班时间</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title">
+              <h3>工作日历配置</h3>
+              <span class="muted">周末 + 法定节假日共同决定工作日</span>
+            </div>
+            <div class="calendar-grid">
+              <div class="field">
+                <label>周末定义</label>
+                <div class="list-box">Saturday / Sunday</div>
+              </div>
+              <div class="field">
+                <label>德国法定节假日维护</label>
+                <div class="holiday-list">
+                  <div class="holiday-row"><span>2026-01-01</span><span>元旦</span></div>
+                  <div class="holiday-row"><span>2026-04-03</span><span>耶稣受难日</span></div>
+                  <div class="holiday-row"><span>2026-04-06</span><span>复活节星期一</span></div>
+                  <div class="holiday-row"><span>+ 添加节假日日期</span><span>手工维护</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-stack">
+          <div class="aside">
+            <strong>页面边界</strong>
+            <ul>
+              <li>不做通用规则引擎，只做统一模板下的仓库参数配置。</li>
+              <li>不把 8:00-17:00 常规工作时间放进规则字段，因为它不参与实际判定。</li>
+              <li>节假日先走手工维护，不接外部节假日服务。</li>
+            </ul>
+          </div>
+
+          <div class="aside">
+            <strong>字段解释提示区</strong>
+            <ul>
+              <li>截单时间：决定订单是否顺延到下一个工作日。</li>
+              <li>超时时点：决定订单何时进入已超时。</li>
+              <li>预警提前量：由超时时点向前倒推，决定何时进入即将超时。</li>
+              <li>时区：统一做仓库当地时间换算，并自动处理夏冬令时。</li>
+            </ul>
+          </div>
+
+          <div class="aside soft">
+            <strong>保存后的统一输出</strong>
+            <div class="text-box">timeZoneId / weekendDays / holidayDates / cutoffTimeStandard / cutoffTimeDaylight / overdueTime / warningLeadMinutes</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="wireframe">
+      <div class="head">
+        <div class="head-left">
+          <span class="tag">页面 B</span>
+          <h2>规则计算预览区</h2>
+          <p>配置页右下或独立 Tab 可以放一个“规则预览”模块，让业务在改完参数后立刻看到系统怎么判断。这样能减少“字段配了但不知道实际效果”的沟通成本。</p>
+        </div>
+        <div class="head-right">
+          <span class="pill">目的：配置即验证</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h3>规则流转线框</h3>
+          <span class="muted">统一算法，不按仓库改代码，只换参数</span>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box">
+            <strong>1. 转仓库当地时间</strong>
+            <span class="small">订单创建时间</span>
+            <span class="small">当前时间</span>
+            <span class="small">已出库时间</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box">
+            <strong>2. 判断是否工作日</strong>
+            <span class="small">周末命中？</span>
+            <span class="small">节假日命中？</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box">
+            <strong>3. 判断截单前后</strong>
+            <span class="small">夏令时用 15:00</span>
+            <span class="small">冬令时用 16:00</span>
+          </div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box">
+            <strong>4. 得到承诺日</strong>
+            <span class="small">当天</span>
+            <span class="small">或下一个工作日</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box">
+            <strong>5. 拼接超时时点</strong>
+            <span class="small">承诺日 + 18:00</span>
+            <span class="small">得出 overdueAt</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="flow-box">
+            <strong>6. 倒推预警时间</strong>
+            <span class="small">overdueAt - 60 分钟</span>
+            <span class="small">得出 warningAt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="panel">
+          <div class="section-title">
+            <h3>试算样例表</h3>
+            <span class="muted">改参数后立即重算</span>
+          </div>
+          <div class="table-head">
+            <span>场景</span>
+            <span>下单时间</span>
+            <span>是否工作日</span>
+            <span>承诺日</span>
+            <span>超时时点</span>
+            <span>结果</span>
+          </div>
+          <div class="table-row">
+            <span>工作日截单前</span>
+            <span>周二 14:20</span>
+            <span>是</span>
+            <span>周二</span>
+            <span>周二 18:00</span>
+            <span class="pill">当天完成</span>
+          </div>
+          <div class="table-row">
+            <span>工作日截单后</span>
+            <span>周二 16:30</span>
+            <span>是</span>
+            <span>周三</span>
+            <span>周三 18:00</span>
+            <span class="pill">顺延</span>
+          </div>
+          <div class="table-row">
+            <span>周五截单后</span>
+            <span>周五 16:30</span>
+            <span>是</span>
+            <span>周一</span>
+            <span>周一 18:00</span>
+            <span class="pill">跨周末</span>
+          </div>
+          <div class="table-row">
+            <span>法定节假日下单</span>
+            <span>假日 11:00</span>
+            <span>否</span>
+            <span>下个工作日</span>
+            <span>下个工作日 18:00</span>
+            <span class="pill">跳过假期</span>
+          </div>
+        </div>
+
+        <div class="aside">
+          <strong>边界口径提示</strong>
+          <ul>
+            <li>下单时间等于截单时间，仍按当天处理。</li>
+            <li>周末和法定节假日下单，不参与当天截单比较。</li>
+            <li>已出库订单不进入风险状态。</li>
+            <li>即将超时来自提前量，不写死 17:00。</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="wireframe">
+      <div class="head">
+        <div class="head-left">
+          <span class="tag">页面 C</span>
+          <h2>德国仓确认样例卡片</h2>
+          <p>这块更像给业务评审用的“确认卡”，把德国仓的关键口径直接翻译成可读样例，避免只盯字段名导致误解。</p>
+        </div>
+        <div class="head-right">
+          <span class="pill">用于评审，不一定进入正式页面</span>
+        </div>
+      </div>
+
+      <div class="cases-grid">
+        <div class="case-card">
+          <h4>样例 1：夏令时截单前</h4>
+          <p class="small">下单：德国当地周二 14:20</p>
+          <p class="small">截单：15:00</p>
+          <p class="small">承诺日：周二</p>
+          <p class="small">即将超时：周二 17:00</p>
+          <p class="small">已超时：周二 18:00</p>
+        </div>
+        <div class="case-card">
+          <h4>样例 2：周五截单后</h4>
+          <p class="small">下单：德国当地周五 16:30</p>
+          <p class="small">已过夏令时截单 15:00</p>
+          <p class="small">周六周日跳过</p>
+          <p class="small">即将超时：周一 17:00</p>
+          <p class="small">已超时：周一 18:00</p>
+        </div>
+        <div class="case-card">
+          <h4>样例 3：法定节假日下单</h4>
+          <p class="small">下单：德国法定节假日 11:00</p>
+          <p class="small">当天不比较截单时间</p>
+          <p class="small">顺延：下一个工作日</p>
+          <p class="small">即将超时：工作日 17:00</p>
+          <p class="small">已超时：工作日 18:00</p>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        如果你认可这个结构，下一步我可以把它继续推进成两种方向之一：一是直接做成前端实际页面，二是再补一张“异常详情页如何展示 deadlineAt / warningAt / overdueAt”的联动线框。
+      </div>
+    </article>
+  </div>
+</body>
+</html>

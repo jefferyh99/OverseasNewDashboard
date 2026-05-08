@@ -10,6 +10,7 @@ namespace OpsMonitor.Api.Controllers;
 public class AuthController : ControllerBase
 {
     [HttpPost("login")]
+    [HttpOptions("login")]
     [AllowAnonymous]
     public IActionResult Login([FromBody] LoginRequest request)
     {

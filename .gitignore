@@ -49,4 +49,3 @@ backend/TestResults/
 # Shared tooling outputs
 coverage/
 *.coverage
-
