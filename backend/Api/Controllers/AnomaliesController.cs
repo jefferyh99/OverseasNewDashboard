@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpsMonitor.Application.Outbound;
 using OpsMonitor.Contracts;
 using OpsMonitor.Contracts.Anomalies;
 
@@ -8,7 +9,9 @@ namespace OpsMonitor.Api.Controllers;
 [ApiController]
 [Route("api/anomalies")]
 [Authorize]
-public class AnomaliesController : ControllerBase
+public class AnomaliesController(
+    WarehouseOutboundRuleProvider ruleProvider,
+    OutboundDeadlineCalculator deadlineCalculator) : ControllerBase
 {
     // ── 出库异常 ──────────────────────────────────────────────────
 
@@ -27,22 +30,53 @@ public class AnomaliesController : ControllerBase
     {
         var now = DateTimeOffset.Now;
         var orderPrefix = warehouseCode == "ON" ? "ON" : "DE";
-        var items = Enumerable.Range(1, 5).Select(i => new OutboundItem(
-            OrderId: $"{orderPrefix}-SO2026050400{i}",
-            CustomerOrChannel: i % 2 == 0 ? "客户A / 渠道A" : "客户B / 渠道B",
-            OrderTime: now.AddHours(-i * 6),
-            DeadlineAt: now.AddHours(i % 3 == 0 ? -2 : 2),
-            TimeStatus: i % 3 == 0 ? "overdue" : "remaining",
-            TimeValueMinutes: i % 3 == 0 ? 120 : 180,
-            TimeValueLabel: i % 3 == 0 ? $"超时 2 小时" : $"剩余 {3 * i} 小时",
-            CurrentStatus: "待出库",
-            Shipped: false,
-            RiskStatus: i % 3 == 0 ? "overdue" : "imminent")).ToList();
+        var rule = ruleProvider.GetRule(warehouseCode);
+        var seeds = new[]
+        {
+            new { OrderId = $"{orderPrefix}-SO20260504001", CustomerOrChannel = "客户A / 渠道A", OrderTime = now.AddHours(-30), CurrentStatus = "待出库", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504002", CustomerOrChannel = "客户B / 渠道B", OrderTime = now.AddHours(-4), CurrentStatus = "待出库", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504003", CustomerOrChannel = "客户C / 渠道C", OrderTime = now.AddHours(-2), CurrentStatus = "已出库", Shipped = true },
+        };
+
+        var items = seeds.Select(seed =>
+        {
+            var deadline = deadlineCalculator.Calculate(seed.OrderTime, rule);
+            var warningReached = now >= deadline.WarningAtUtc;
+            var overdueReached = now >= deadline.OverdueAtUtc;
+            var remainingMinutes = (int)Math.Round((deadline.OverdueAtUtc - now).TotalMinutes);
+            var overdueMinutes = (int)Math.Round((now - deadline.OverdueAtUtc).TotalMinutes);
+            var computedRiskStatus = overdueReached ? "overdue" : warningReached ? "imminent" : "normal";
+
+            return new OutboundItem(
+                OrderId: seed.OrderId,
+                CustomerOrChannel: seed.CustomerOrChannel,
+                OrderTime: seed.OrderTime,
+                DeadlineAt: deadline.OverdueAtUtc,
+                TimeStatus: overdueReached ? "overdue" : "remaining",
+                TimeValueMinutes: overdueReached ? Math.Abs(overdueMinutes) : remainingMinutes,
+                TimeValueLabel: overdueReached
+                    ? $"超时 {Math.Abs(overdueMinutes) / 60.0:F1} 小时"
+                    : $"剩余 {remainingMinutes / 60.0:F1} 小时",
+                CurrentStatus: seed.CurrentStatus,
+                Shipped: seed.Shipped,
+                RiskStatus: computedRiskStatus);
+        })
+        .Where(x => !x.Shipped)
+        .Where(x => x.RiskStatus is "imminent" or "overdue")
+        .ToList();
+
+        if (!string.IsNullOrWhiteSpace(riskStatus))
+        {
+            items = items.Where(x => x.RiskStatus == riskStatus).ToList();
+        }
+
+        var imminentCount = items.Count(x => x.RiskStatus == "imminent");
+        var overdueCount = items.Count(x => x.RiskStatus == "overdue");
 
         var data = new OutboundResponse(
-            Summary: new(128, 48, 80),
-            FilterOptions: new(["渠道A", "渠道B"], ["客户A", "客户B"]),
-            List: new(pageNo, pageSize, 128, items));
+            Summary: new(items.Count, imminentCount, overdueCount),
+            FilterOptions: new(["渠道A", "渠道B", "渠道C"], ["客户A", "客户B", "客户C"]),
+            List: new(pageNo, pageSize, items.Count, items));
 
         return Ok(ApiResponse<OutboundResponse>.Ok(data));
     }

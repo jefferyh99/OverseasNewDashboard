@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpsMonitor.Application.Outbound;
 using OpsMonitor.Contracts;
 using OpsMonitor.Contracts.Dashboard;
 
@@ -8,7 +9,9 @@ namespace OpsMonitor.Api.Controllers;
 [ApiController]
 [Route("api/dashboard")]
 [Authorize]
-public class DashboardController : ControllerBase
+public class DashboardController(
+    WarehouseOutboundRuleProvider ruleProvider,
+    OutboundDeadlineCalculator deadlineCalculator) : ControllerBase
 {
     private static readonly TimeSpan DelayThreshold = TimeSpan.FromMinutes(90);
 
@@ -23,32 +26,62 @@ public class DashboardController : ControllerBase
             ? new WarehouseInfo("ON", "Ontario")
             : new WarehouseInfo("DE", "Germany");
 
-        var outboundItems = Enumerable.Range(1, 5).Select(i =>
+        var orderPrefix = warehouseCode == "ON" ? "ON" : "DE";
+        var rule = ruleProvider.GetRule(warehouseCode);
+
+        var outboundItems = new[]
         {
-            var isOverdue = i % 3 == 0;
-            var minutesDiff = isOverdue ? -(i * 40) : (i * 55);
-            return new AnomalyPreviewItem(
-                OrderId: $"SO2026050400{i}",
-                AsnId: null,
-                CartonId: null,
-                CustomerOrChannel: i % 2 == 0 ? "CustomerA / ChannelA" : "CustomerB / ChannelB",
-                OrderTime: now.AddHours(-i * 8),
-                FirstArrivalTime: null,
-                ArrivalTime: null,
-                DeadlineAt: now.AddMinutes(minutesDiff),
-                CurrentStatus: "pending-outbound",
-                RiskStatus: isOverdue ? "overdue" : "imminent",
-                TimeStatus: isOverdue ? "overdue" : "remaining",
-                TimeValueMinutes: Math.Abs(minutesDiff),
-                TimeValueLabel: isOverdue
-                    ? $"超时 {Math.Abs(minutesDiff) / 60} 小时"
-                    : $"剩余 {minutesDiff / 60} 小时",
-                PlannedCartonCount: null,
-                ArrivedCartonCount: null,
-                MissingCartonCount: null,
-                SkuCount: null,
-                UnshelvedSkuCount: null);
-        }).ToList();
+            new { OrderId = $"{orderPrefix}-SO20260504001", CustomerOrChannel = "CustomerA / ChannelA", OrderTime = now.AddHours(-30), CurrentStatus = "pending-outbound", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504002", CustomerOrChannel = "CustomerB / ChannelB", OrderTime = now.AddHours(-4), CurrentStatus = "pending-outbound", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504003", CustomerOrChannel = "CustomerC / ChannelC", OrderTime = now.AddHours(-2), CurrentStatus = "shipped", Shipped = true },
+        }
+        .Select(seed =>
+        {
+            var deadline = deadlineCalculator.Calculate(seed.OrderTime, rule);
+            var warningReached = now >= deadline.WarningAtUtc;
+            var overdueReached = now >= deadline.OverdueAtUtc;
+            var remainingMinutes = (int)Math.Round((deadline.OverdueAtUtc - now).TotalMinutes);
+            var overdueMinutes = (int)Math.Round((now - deadline.OverdueAtUtc).TotalMinutes);
+            var riskStatus = overdueReached ? "overdue" : warningReached ? "imminent" : "normal";
+
+            return new
+            {
+                seed.OrderId,
+                seed.CustomerOrChannel,
+                seed.OrderTime,
+                seed.CurrentStatus,
+                seed.Shipped,
+                DeadlineAt = deadline.OverdueAtUtc,
+                TimeStatus = overdueReached ? "overdue" : "remaining",
+                TimeValueMinutes = overdueReached ? Math.Abs(overdueMinutes) : remainingMinutes,
+                TimeValueLabel = overdueReached
+                    ? $"超时 {Math.Abs(overdueMinutes) / 60.0:F1} 小时"
+                    : $"剩余 {remainingMinutes / 60.0:F1} 小时",
+                RiskStatus = riskStatus,
+            };
+        })
+        .Where(x => !x.Shipped)
+        .Where(x => x.RiskStatus is "imminent" or "overdue")
+        .Select(x => new AnomalyPreviewItem(
+            OrderId: x.OrderId,
+            AsnId: null,
+            CartonId: null,
+            CustomerOrChannel: x.CustomerOrChannel,
+            OrderTime: x.OrderTime,
+            FirstArrivalTime: null,
+            ArrivalTime: null,
+            DeadlineAt: x.DeadlineAt,
+            CurrentStatus: x.CurrentStatus,
+            RiskStatus: x.RiskStatus,
+            TimeStatus: x.TimeStatus,
+            TimeValueMinutes: x.TimeValueMinutes,
+            TimeValueLabel: x.TimeValueLabel,
+            PlannedCartonCount: null,
+            ArrivedCartonCount: null,
+            MissingCartonCount: null,
+            SkuCount: null,
+            UnshelvedSkuCount: null))
+        .ToList();
 
         var inboundItems = Enumerable.Range(1, 5).Select(i =>
         {
@@ -126,7 +159,9 @@ public class DashboardController : ControllerBase
                 LastSyncTime: lastSync,
                 SyncStatus: delayedDataFlag ? "delayed" : "success",
                 TodayReminderCount: 16,
-                TodayOverdueCount: 9,
+                TodayOverdueCount: outboundItems.Count(x => x.RiskStatus == "overdue")
+                    + inboundItems.Count(x => x.RiskStatus == "overdue")
+                    + shelvingItems.Count(x => x.RiskStatus == "overdue"),
                 AlertChannels:
                 [
                     new("wechat", "WeCom", "healthy"),
@@ -135,15 +170,27 @@ public class DashboardController : ControllerBase
                 DelayedDataFlag: delayedDataFlag,
                 DelayedReason: delayedDataFlag ? "Business system sync delayed" : null),
             TodayOverview: new(
-                OutboundRiskCount: 23,
-                InboundRiskCount: 7,
-                ShelvingRiskCount: 15,
+                OutboundRiskCount: outboundItems.Count,
+                InboundRiskCount: inboundItems.Count,
+                ShelvingRiskCount: shelvingItems.Count,
                 TodayVolumePressureLevel: "medium",
                 OperationTip: "Prioritize outbound tasks first."),
             AnomalyPreview: new(
-                Outbound: new(23, 10, 13, outboundItems),
-                Inbound: new(7, 2, 5, inboundItems),
-                Shelving: new(15, 4, 11, shelvingItems)),
+                Outbound: new(
+                    outboundItems.Count,
+                    outboundItems.Count(x => x.RiskStatus == "imminent"),
+                    outboundItems.Count(x => x.RiskStatus == "overdue"),
+                    outboundItems),
+                Inbound: new(
+                    inboundItems.Count,
+                    inboundItems.Count(x => x.RiskStatus == "imminent"),
+                    inboundItems.Count(x => x.RiskStatus == "overdue"),
+                    inboundItems),
+                Shelving: new(
+                    shelvingItems.Count,
+                    shelvingItems.Count(x => x.RiskStatus == "imminent"),
+                    shelvingItems.Count(x => x.RiskStatus == "overdue"),
+                    shelvingItems)),
             Forecast7Days: forecast7Days);
 
         return Ok(ApiResponse<DashboardResponse>.Ok(data));

@@ -22,4 +22,23 @@ public class DashboardControllerTests(WebApplicationFactory<Program> factory)
         var result = await response.Content.ReadFromJsonAsync<ApiResponse<DashboardResponse>>();
         Assert.Equal("ON", result!.Data!.Warehouse.WarehouseId);
     }
+
+    [Fact]
+    public async Task Dashboard_outbound_preview_counts_match_item_risk_status()
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
+
+        var response = await client.GetAsync("/api/dashboard?warehouseCode=DE");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<ApiResponse<DashboardResponse>>();
+        var outbound = payload!.Data!.AnomalyPreview.Outbound;
+
+        Assert.Equal(outbound.Items.Count, outbound.Total);
+        Assert.Equal(outbound.Items.Count(x => x.RiskStatus == "imminent"), outbound.ImminentCount);
+        Assert.Equal(outbound.Items.Count(x => x.RiskStatus == "overdue"), outbound.OverdueCount);
+        Assert.All(outbound.Items, item => Assert.NotEqual(default, item.DeadlineAt));
+    }
 }
