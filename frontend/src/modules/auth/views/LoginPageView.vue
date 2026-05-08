@@ -83,42 +83,59 @@ async function submit() {
 
 <style scoped>
 .login-card {
-  width: min(420px, calc(100vw - 32px));
-  padding: 40px 36px 32px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+  width: min(430px, calc(100vw - 36px));
+  padding: 44px 36px 32px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border: 1px solid #d8e5f3;
+  box-shadow:
+    0 20px 52px rgba(15, 46, 80, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.72) inset;
 }
 
 .login-logo {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .logo-icon {
-  font-size: 40px;
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: linear-gradient(140deg, #2388e1 0%, #10599f 100%);
+  box-shadow: 0 10px 24px rgba(16, 89, 159, 0.35);
 }
 
 h1 {
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  color: #16324f;
+  color: #173452;
   margin: 0 0 4px;
+  letter-spacing: 0.01em;
 }
 
 .subtitle {
   text-align: center;
-  color: #64748b;
+  color: #69809b;
   font-size: 13px;
-  margin: 0 0 28px;
+  margin: 0 0 26px;
 }
 
 .hint {
   text-align: center;
-  color: #94a3b8;
+  color: #8496aa;
   font-size: 12px;
   margin: 16px 0 0;
+}
+
+:deep(.el-form-item__label) {
+  color: #2d4865;
+  font-weight: 600;
 }
 </style>
 

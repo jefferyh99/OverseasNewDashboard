@@ -14,22 +14,22 @@ interface GroupItem { label: string; key: string; icon: string; children: Omit<L
 type MenuItem = LeafItem | GroupItem
 
 const menuGroups: MenuItem[] = [
-  { label: '工作量看板', path: '/dashboard', icon: 'W' },
-  { label: '异常看板', path: '/anomaly-dashboard', icon: 'A' },
+  { label: '工作量看板', path: '/dashboard', icon: 'menu-workload' },
+  { label: '异常看板', path: '/anomaly-dashboard', icon: 'menu-overview' },
   {
     label: '异常管理',
     key: '/anomalies',
-    icon: 'M',
+    icon: 'menu-anomaly',
     children: [
-      { label: '出库异常', path: '/anomalies/outbound' },
-      { label: '到仓不齐', path: '/anomalies/inbound' },
-      { label: '上架异常', path: '/anomalies/shelving' },
+      { label: '箱子出库异常', path: '/anomalies/outbound' },
+      { label: '入库单箱子到仓不齐', path: '/anomalies/inbound' },
+      { label: 'SKU上架异常', path: '/anomalies/shelving' },
     ],
   },
   {
     label: '系统设置',
     key: '/settings',
-    icon: 'S',
+    icon: 'menu-settings',
     children: [
       { label: '提醒配置', path: '/settings/alerts' },
     ],
@@ -79,7 +79,11 @@ function handleUserCommand(cmd: string) {
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-icon">O</span>
+        <span class="brand-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <use href="/dc-icons.svg#logo-grid" />
+          </svg>
+        </span>
         <span class="brand-name">Ops Monitor</span>
       </div>
 
@@ -92,14 +96,22 @@ function handleUserCommand(cmd: string) {
         <template v-for="item in menuGroups" :key="item.label">
           <el-menu-item v-if="!isGroup(item)" :index="(item as LeafItem).path">
             <template #title>
-              <span class="menu-icon">{{ (item as LeafItem).icon }}</span>
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use :href="`/dc-icons.svg#${(item as LeafItem).icon}`" />
+                </svg>
+              </span>
               {{ item.label }}
             </template>
           </el-menu-item>
 
           <el-sub-menu v-else :index="(item as GroupItem).key">
             <template #title>
-              <span class="menu-icon">{{ (item as GroupItem).icon }}</span>
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use :href="`/dc-icons.svg#${(item as GroupItem).icon}`" />
+                </svg>
+              </span>
               {{ item.label }}
             </template>
             <el-menu-item
@@ -176,65 +188,90 @@ function handleUserCommand(cmd: string) {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 236px 1fr;
+  background:
+    radial-gradient(circle at 0 0, rgba(58, 126, 197, 0.16), transparent 34%),
+    radial-gradient(circle at 100% 0, rgba(49, 116, 185, 0.11), transparent 38%),
+    linear-gradient(180deg, #071321 0%, #0a1828 100%);
 }
 
 .sidebar {
-  background: #2d3a4a;
+  background:
+    linear-gradient(180deg, rgba(6, 24, 44, 0.96) 0%, rgba(8, 30, 54, 0.97) 72%),
+    radial-gradient(circle at 20% 0%, rgba(76, 155, 233, 0.2), transparent 52%);
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  border-right: 1px solid rgba(188, 216, 245, 0.18);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 50px;
-  padding: 0 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
+  height: 60px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(111, 166, 219, 0.24);
   flex-shrink: 0;
 }
 
-.brand-icon { font-size: 18px; }
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, #2188de 0%, #0f4f8f 100%);
+  color: #d7edff;
+  box-shadow: 0 8px 22px rgba(14, 95, 167, 0.42);
+}
+
+.brand-icon svg {
+  width: 16px;
+  height: 16px;
+}
 
 .brand-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: #e2e8f0;
-  letter-spacing: 0.3px;
+  color: #edf6ff;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-menu {
   background: transparent !important;
   border-right: none !important;
   flex: 1;
-  padding: 6px 8px;
+  padding: 12px 10px;
 }
 
 :deep(.el-menu-item),
 :deep(.el-sub-menu__title) {
-  color: rgba(255, 255, 255, 0.55) !important;
-  border-radius: 6px;
-  margin-bottom: 1px;
-  height: 40px;
-  line-height: 40px;
+  color: rgba(216, 232, 248, 0.76) !important;
+  border-radius: 10px;
+  margin-bottom: 4px;
+  height: 42px;
+  line-height: 42px;
   font-size: 13px;
+  font-weight: 500;
 }
 
 :deep(.el-menu-item:hover),
 :deep(.el-sub-menu__title:hover) {
-  background: rgba(255, 255, 255, 0.07) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(88, 166, 239, 0.24) !important;
+  color: #f7fbff !important;
 }
 
 :deep(.el-menu-item.is-active) {
-  background: rgba(64, 158, 255, 0.18) !important;
-  color: #7ec8f8 !important;
+  background: linear-gradient(90deg, rgba(37, 131, 216, 0.4) 0%, rgba(25, 122, 211, 0.18) 100%) !important;
+  color: #f7fbff !important;
   font-weight: 600;
+  box-shadow: inset 3px 0 0 #7ec2ff;
 }
 
 :deep(.el-sub-menu .el-menu) {
@@ -242,68 +279,79 @@ function handleUserCommand(cmd: string) {
 }
 
 :deep(.el-sub-menu .el-menu .el-menu-item) {
-  padding-left: 40px !important;
+  padding-left: 44px !important;
   font-size: 12.5px;
-  height: 36px;
-  line-height: 36px;
-  color: rgba(255, 255, 255, 0.45) !important;
+  height: 34px;
+  line-height: 34px;
+  color: rgba(214, 231, 247, 0.65) !important;
 }
 
 :deep(.el-sub-menu .el-menu .el-menu-item.is-active) {
-  color: #7ec8f8 !important;
-  background: rgba(64, 158, 255, 0.14) !important;
+  color: #f7fbff !important;
+  background: rgba(25, 122, 211, 0.22) !important;
 }
 
 :deep(.el-sub-menu__icon-arrow) {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(201, 223, 246, 0.5) !important;
 }
 
 :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: #f2f9ff !important;
 }
 
 .menu-icon {
   margin-right: 8px;
-  font-style: normal;
-  font-size: 13px;
-  opacity: 0.7;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  opacity: 0.96;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .main {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: transparent;
 }
 
 .topbar {
-  height: 50px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8edf3;
+  height: 60px;
+  background: rgba(9, 26, 45, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(61, 99, 135, 0.42);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
   flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
 :deep(.el-breadcrumb__inner) {
-  color: #64748b !important;
-  font-size: 13px;
-}
-
-:deep(.el-breadcrumb__inner.is-link:hover) {
-  color: #409eff !important;
-}
-
-:deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
-  color: #1e293b !important;
+  color: #89a7c7 !important;
+  font-size: 12.5px;
   font-weight: 500;
 }
 
+:deep(.el-breadcrumb__inner.is-link:hover) {
+  color: #6fc1ff !important;
+}
+
+:deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
+  color: #d7ebff !important;
+  font-weight: 700;
+}
+
 :deep(.el-breadcrumb__separator) {
-  color: #cbd5e1 !important;
+  color: #6287ad !important;
 }
 
 .user-area { display: flex; align-items: center; }
@@ -311,20 +359,24 @@ function handleUserCommand(cmd: string) {
 .user-btn {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 20px;
-  transition: background 0.15s;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: all 0.16s ease;
 }
 
-.user-btn:hover { background: #f1f5f9; }
+.user-btn:hover {
+  background: rgba(82, 137, 191, 0.16);
+  border-color: rgba(112, 169, 224, 0.3);
+}
 
 .avatar {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #36cfc9, #1890ff);
+  background: linear-gradient(135deg, #2388e1 0%, #10599f 100%);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -335,17 +387,18 @@ function handleUserCommand(cmd: string) {
 
 .username {
   font-size: 13px;
-  color: #374151;
+  color: #cae4ff;
+  font-weight: 600;
 }
 
 .tab-bar {
-  height: 40px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8edf3;
+  height: 44px;
+  background: rgba(8, 23, 40, 0.92);
+  border-bottom: 1px solid rgba(61, 99, 135, 0.4);
   display: flex;
   align-items: center;
-  padding: 0 6px;
-  gap: 2px;
+  padding: 0 10px;
+  gap: 4px;
   flex-shrink: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -356,36 +409,37 @@ function handleUserCommand(cmd: string) {
 .tab-item {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 0 12px;
-  height: 30px;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #64748b;
+  gap: 6px;
+  padding: 0 13px;
+  height: 31px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: #8ba8c6;
   cursor: pointer;
   border: 1px solid transparent;
   white-space: nowrap;
-  transition: all 0.15s;
+  transition: all 0.16s ease;
   flex-shrink: 0;
   user-select: none;
 }
 
 .tab-item:hover {
-  background: #f8fafc;
-  color: #374151;
-  border-color: #e2e8f0;
+  background: rgba(83, 145, 206, 0.16);
+  color: #d7ebff;
+  border-color: rgba(117, 180, 236, 0.28);
 }
 
 .tab-active {
-  background: #f0f9ff;
-  color: #0284c7;
-  border-color: #bae6fd;
-  font-weight: 500;
+  background: linear-gradient(180deg, rgba(58, 145, 221, 0.3) 0%, rgba(33, 109, 179, 0.2) 100%);
+  color: #def0ff;
+  border-color: rgba(120, 186, 244, 0.42);
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgba(9, 58, 104, 0.32);
 }
 
 .tab-dot {
   font-size: 8px;
-  color: #10b981;
+  color: #1fba68;
   line-height: 1;
 }
 
@@ -394,7 +448,7 @@ function handleUserCommand(cmd: string) {
 .tab-close {
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: #90acc9;
   cursor: pointer;
   font-size: 14px;
   line-height: 1;
@@ -410,13 +464,49 @@ function handleUserCommand(cmd: string) {
 }
 
 .tab-close:hover {
-  background: #e2e8f0;
-  color: #475569;
+  background: rgba(98, 158, 218, 0.22);
+  color: #d5ecff;
 }
 
 .page-body {
   flex: 1;
-  padding: 20px;
+  padding: 18px;
   overflow-y: auto;
+  background:
+    radial-gradient(circle at 100% 0, rgba(45, 104, 165, 0.1), transparent 40%),
+    radial-gradient(circle at 0 100%, rgba(52, 120, 190, 0.08), transparent 35%),
+    linear-gradient(180deg, #f7fbff 0%, #eef4fb 100%);
+}
+
+@media (max-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    max-height: 320px;
+  }
+
+  .brand {
+    height: 56px;
+  }
+
+  .sidebar-menu {
+    max-height: 260px;
+  }
+
+  .topbar {
+    padding: 0 14px;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .page-body {
+    padding: 12px;
+  }
 }
 </style>

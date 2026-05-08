@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="logo-grid" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/>
+  </symbol>
+  <symbol id="menu-workload" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M4 18h3V9H4zm6 0h3V5h-3zm6 0h3v-7h-3z"/>
+  </symbol>
+  <symbol id="menu-overview" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M3 4h18v4H3zm0 6h8v10H3zm10 0h8v5h-8zm0 7h8v3h-8z"/>
+  </symbol>
+  <symbol id="menu-anomaly" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 3 2 20h20zm0 4.2 6.4 10.8H5.6z"/>
+    <path fill="currentColor" d="M11 10h2v5h-2zm0 6.5h2V19h-2z"/>
+  </symbol>
+  <symbol id="menu-settings" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.5-2.3 1a8 8 0 0 0-1.7-1L15 3h-6l-.4 3a8 8 0 0 0-1.7 1l-2.3-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a8 8 0 0 0 1.7 1L9 21h6l.4-3a8 8 0 0 0 1.7-1l2.3 1 2-3.5zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5"/>
+  </symbol>
+  <symbol id="stat-outbound" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M3 7h8v5H3zm10 0h8v5h-8zM3 14h8v5H3zm10 0h8v5h-8z"/>
+  </symbol>
+  <symbol id="stat-inbound" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 2 4 8h3v8h10V8h3z"/>
+    <path fill="currentColor" d="M5 18h14v4H5z"/>
+  </symbol>
+  <symbol id="stat-shelving" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M4 4h16v4H4zm0 6h7v10H4zm9 0h7v10h-7z"/>
+  </symbol>
+  <symbol id="hero-command" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M3 4h18v3H3zm0 5h6v11H3zm8 0h10v5H11zm0 7h10v4H11z"/>
+  </symbol>
+</svg>

@@ -1,6 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import AppIcon from '@/shared/components/AppIcon.vue'
+import { formatRiskLabel, formatTimeValueLabel } from '@/modules/anomalies/utils/labels'
 import { anomaliesApi } from '@/services/api'
 import type { InboundItem, InboundQuery } from '@/services/types'
 
@@ -17,7 +19,7 @@ const query = reactive<InboundQuery>({
   pageSize: 20,
   riskStatus: undefined,
   sortBy: 'deadlineAt',
-  sortDirection: 'asc',
+  sortDirection: 'asc'
 })
 
 function applyRouteFilters() {
@@ -31,7 +33,7 @@ async function fetchData() {
     const res = await anomaliesApi.inbound({
       ...query,
       warehouseCode: query.warehouseCode || undefined,
-      riskStatus: query.riskStatus || undefined,
+      riskStatus: query.riskStatus || undefined
     })
     const d = res.data.data
     total.value = d?.summary.total ?? 0
@@ -56,22 +58,24 @@ onMounted(() => {
   fetchData()
 })
 
-function riskTagType(s: string) {
-  return s === 'overdue' ? 'danger' : 'warning'
+function riskTagType(status: string) {
+  return status === 'overdue' ? 'danger' : 'warning'
 }
 
-function riskLabel(s: string) {
-  return s === 'overdue' ? '已超时' : '即将超时'
-}
-
-function timeTagType(s: string) {
-  return s === 'overdue' ? 'danger' : 'success'
+function timeTagType(status: string) {
+  return status === 'overdue' ? 'danger' : 'success'
 }
 </script>
 
 <template>
   <div class="anomaly-page">
     <div class="summary-bar">
+      <div class="summary-title">
+        <span class="summary-icon">
+          <AppIcon name="inbound-warehouse" />
+        </span>
+        <span>入库单箱子到仓不齐</span>
+      </div>
       <span>共 <strong>{{ total }}</strong> 条风险</span>
       <el-tag type="warning" size="small">即将超时 {{ imminentCount }}</el-tag>
       <el-tag type="danger" size="small">已超时 {{ overdueCount }}</el-tag>
@@ -97,17 +101,17 @@ function timeTagType(s: string) {
       <el-table-column prop="arrivedCartonCount" label="已到箱数" width="90" align="right" />
       <el-table-column prop="missingCartonCount" label="缺少箱数" width="90" align="right">
         <template #default="{ row }">
-          <span style="color: #dc2626; font-weight: 600">{{ row.missingCartonCount }}</span>
+          <span class="emphasis">{{ row.missingCartonCount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="风险状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="riskTagType(row.riskStatus)" size="small">{{ riskLabel(row.riskStatus) }}</el-tag>
+          <el-tag :type="riskTagType(row.riskStatus)" size="small">{{ formatRiskLabel(row.riskStatus) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="时效" width="130">
+      <el-table-column label="时效" width="150">
         <template #default="{ row }">
-          <el-tag :type="timeTagType(row.timeStatus)" size="small">{{ row.timeValueLabel }}</el-tag>
+          <el-tag :type="timeTagType(row.timeStatus)" size="small">{{ formatTimeValueLabel(row.timeValueLabel) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="截止时间" width="180">
@@ -135,15 +139,42 @@ function timeTagType(s: string) {
   gap: 12px;
 }
 
+.summary-bar,
+.filter-bar,
+.pagination {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f0dcc6;
+  box-shadow: 0 10px 24px rgba(188, 122, 48, 0.06);
+}
+
 .summary-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 13px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #fff7ee 0%, #ffffff 100%);
+}
+
+.summary-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+  color: #8a4513;
+  font-weight: 700;
+}
+
+.summary-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffe8cb;
+  color: #c56d1f;
 }
 
 .filter-bar {
@@ -151,18 +182,17 @@ function timeTagType(s: string) {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 16px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 12px 16px;
 }
 
 .pagination {
   display: flex;
   justify-content: flex-end;
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 16px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 12px 16px;
+}
+
+.emphasis {
+  color: #dc2626;
+  font-weight: 600;
 }
 </style>
