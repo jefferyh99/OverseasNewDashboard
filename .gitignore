@@ -51,7 +51,7 @@ coverage/
 *.coverage
 
 # IDE specific
-.superpower/
+.superpowers/
 .vscode/
 .docs/
 mockups/
