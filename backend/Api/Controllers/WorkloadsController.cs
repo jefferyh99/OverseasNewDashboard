@@ -36,10 +36,10 @@ public class WorkloadsController : ControllerBase
                 TruckPalletCount: 12),
             TodayInbound:
             [
-                new("sea",     new MetricSplit(40, 20, 20), new MetricSplit(500, 250, 250), new MetricSplit(12, 6, 6),    new MetricSplit(400, 200, 200), new MetricSplit(80, 40, 40),  seaContainerCount: 8,    truckPalletCount: null),
-                new("truck",   new MetricSplit(30, 20, 10), new MetricSplit(350, 220, 130), new MetricSplit(9, 6, 3),     new MetricSplit(320, 240, 80),  new MetricSplit(70, 50, 20), seaContainerCount: null, truckPalletCount: 12),
-                new("express", new MetricSplit(20, 15, 5),  new MetricSplit(220, 170, 50),  new MetricSplit(6, 4.5, 1.5), new MetricSplit(200, 160, 40),  new MetricSplit(40, 30, 10), seaContainerCount: null, truckPalletCount: null),
-                new("air",     new MetricSplit(10, 5, 5),   new MetricSplit(130, 60, 70),   new MetricSplit(3, 1.5, 1.5), new MetricSplit(80, 50, 30),   new MetricSplit(10, 10, 0),  seaContainerCount: null, truckPalletCount: null)
+                new("sea",     new MetricSplit(40, 20, 20), new MetricSplit(500, 250, 250), new MetricSplit(12, 6, 6),    new MetricSplit(400, 200, 200), new MetricSplit(80, 40, 40),  SeaContainerCount: 8,    TruckPalletCount: null),
+                new("truck",   new MetricSplit(30, 20, 10), new MetricSplit(350, 220, 130), new MetricSplit(9, 6, 3),     new MetricSplit(320, 240, 80),  new MetricSplit(70, 50, 20), SeaContainerCount: null, TruckPalletCount: 12),
+                new("express", new MetricSplit(20, 15, 5),  new MetricSplit(220, 170, 50),  new MetricSplit(6, 4.5, 1.5), new MetricSplit(200, 160, 40),  new MetricSplit(40, 30, 10), SeaContainerCount: null, TruckPalletCount: null),
+                new("air",     new MetricSplit(10, 5, 5),   new MetricSplit(130, 60, 70),   new MetricSplit(3, 1.5, 1.5), new MetricSplit(80, 50, 30),   new MetricSplit(10, 10, 0),  SeaContainerCount: null, TruckPalletCount: null)
             ],
             TomorrowInboundSummary: new TomorrowInboundSummary(120, 1400, 35, TotalUnits: 1200, TotalSkuCount: 220, SeaContainerCount: 9, TruckPalletCount: 29),
             TomorrowInbound:
@@ -301,7 +301,7 @@ public class WorkloadsController : ControllerBase
             if (day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
                 continue;
             result.Add(new FutureInboundForecastBar(
-                ArrivalDate: day.ToString("MM/dd ddd"),
+                ArrivalDate: day.ToString("yyyy-MM-dd"),
                 TotalCartons: baseCartons + i * 10,
                 TotalWeightKg: (baseCartons + i * 10) * 12,
                 TotalVolumeM3: (baseCartons + i * 10) / 4,

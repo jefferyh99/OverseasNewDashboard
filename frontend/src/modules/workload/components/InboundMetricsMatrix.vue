@@ -17,7 +17,7 @@ function formatTotal(value: number) {
     <el-table-column label="货运方式" width="110">
       <template #default="{ row }">{{ formatTransportMode(row.transportMode) }}</template>
     </el-table-column>
-    <el-table-column label="总箱数 / 已处理 / 待处理">
+    <el-table-column :label="props.showStatusSplit ? '总箱数 / 已处理 / 待处理' : '总箱数'">
       <template #default="{ row }">
         <template v-if="props.showStatusSplit">
           {{ formatTotal(row.cartons.total) }} / {{ formatTotal(row.cartons.processed) }} / {{ formatTotal(row.cartons.pending) }}
