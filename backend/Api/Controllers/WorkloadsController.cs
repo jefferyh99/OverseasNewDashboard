@@ -31,30 +31,23 @@ public class WorkloadsController : ControllerBase
                 TotalWeightKg: new MetricSplit(1200, 700, 500),
                 TotalVolumeM3: new MetricSplit(30, 18, 12),
                 TotalUnits: new MetricSplit(1000, 650, 350),
-                TotalSkuCount: new MetricSplit(200, 130, 70)),
+                TotalSkuCount: new MetricSplit(200, 130, 70),
+                SeaContainerCount: 8,
+                TruckPalletCount: 12),
             TodayInbound:
             [
-                new("sea", new MetricSplit(40, 20, 20), new MetricSplit(500, 250, 250), new MetricSplit(12, 6, 6), new MetricSplit(400, 200, 200), new MetricSplit(80, 40, 40)),
-                new("truck", new MetricSplit(30, 20, 10), new MetricSplit(350, 220, 130), new MetricSplit(9, 6, 3), new MetricSplit(320, 240, 80), new MetricSplit(70, 50, 20)),
-                new("express", new MetricSplit(20, 15, 5), new MetricSplit(220, 170, 50), new MetricSplit(6, 4.5, 1.5), new MetricSplit(200, 160, 40), new MetricSplit(40, 30, 10)),
-                new("air", new MetricSplit(10, 5, 5), new MetricSplit(130, 60, 70), new MetricSplit(3, 1.5, 1.5), new MetricSplit(80, 50, 30), new MetricSplit(10, 10, 0))
+                new("sea",     new MetricSplit(40, 20, 20), new MetricSplit(500, 250, 250), new MetricSplit(12, 6, 6),    new MetricSplit(400, 200, 200), new MetricSplit(80, 40, 40),  seaContainerCount: 8,    truckPalletCount: null),
+                new("truck",   new MetricSplit(30, 20, 10), new MetricSplit(350, 220, 130), new MetricSplit(9, 6, 3),     new MetricSplit(320, 240, 80),  new MetricSplit(70, 50, 20), seaContainerCount: null, truckPalletCount: 12),
+                new("express", new MetricSplit(20, 15, 5),  new MetricSplit(220, 170, 50),  new MetricSplit(6, 4.5, 1.5), new MetricSplit(200, 160, 40),  new MetricSplit(40, 30, 10), seaContainerCount: null, truckPalletCount: null),
+                new("air",     new MetricSplit(10, 5, 5),   new MetricSplit(130, 60, 70),   new MetricSplit(3, 1.5, 1.5), new MetricSplit(80, 50, 30),   new MetricSplit(10, 10, 0),  seaContainerCount: null, truckPalletCount: null)
             ],
-            TomorrowInboundSummary: new TomorrowInboundSummary(120, 1400, 35, 1200, 220),
+            TomorrowInboundSummary: new TomorrowInboundSummary(120, 1400, 35, TotalUnits: 1200, TotalSkuCount: 220, SeaContainerCount: 9, TruckPalletCount: 29),
             TomorrowInbound:
             [
-                new("sea", 60, 700, 18, 600, 100),
-                new("truck", 60, 700, 17, 600, 120)
+                new("sea",   60, 700, 18, TotalUnits: 600, TotalSkuCount: 100, SeaContainerCount: 9,    TruckPalletCount: null),
+                new("truck", 60, 700, 17, TotalUnits: 600, TotalSkuCount: 120, SeaContainerCount: null, TruckPalletCount: 29)
             ],
-            FutureInboundForecast:
-            [
-                new("2026-05-10", 100, 1200, 30, 3, 8),
-                new("2026-05-11", 110, 1250, 31, 4, 9),
-                new("2026-05-12", 120, 1300, 32, 5, 10),
-                new("2026-05-13", 130, 1350, 33, 4, 11),
-                new("2026-05-14", 140, 1400, 34, 6, 12),
-                new("2026-05-15", 150, 1450, 35, 5, 13),
-                new("2026-05-16", 160, 1500, 36, 7, 14)
-            ]);
+            FutureInboundForecast: GenerateWorkdayForecast(7));
 
         return Ok(ApiResponse<WorkloadDashboardResponse>.Ok(data));
     }
@@ -295,6 +288,26 @@ public class WorkloadsController : ControllerBase
 
     private static bool IsSupportedWarehouse(string warehouseCode) =>
         warehouseCode is "DE" or "ON";
+
+    private static IReadOnlyList<FutureInboundForecastBar> GenerateWorkdayForecast(int count)
+    {
+        var result = new List<FutureInboundForecastBar>(count);
+        var day = DateOnly.FromDateTime(DateTime.Today).AddDays(2); // 从后天开始
+        var baseCartons = 100;
+        for (var i = 0; result.Count < count; i++, day = day.AddDays(1))
+        {
+            if (day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+                continue;
+            result.Add(new FutureInboundForecastBar(
+                ArrivalDate: day.ToString("MM/dd ddd"),
+                TotalCartons: baseCartons + i * 10,
+                TotalWeightKg: (baseCartons + i * 10) * 12,
+                TotalVolumeM3: (baseCartons + i * 10) / 4,
+                SeaContainerCount: 3 + i,
+                TruckPalletCount: 8 + i));
+        }
+        return result;
+    }
 
     private static bool MatchProcessingStatus(string actual, string filter) =>
         filter switch

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { workloadApi } from '@/services/api'
 import type { FutureInboundVolumeData, FutureInboundVolumeItem, TransportMode, WorkloadBaseQuery } from '@/services/types'
 import { downloadCsv } from '@/modules/workload/utils/exportCsv'
+import { getDatePresetRange } from '@/modules/workload/utils/datePresets'
 import { formatTransportMode } from '@/modules/workload/utils/formatters'
 
 type FutureInboundQuery = WorkloadBaseQuery & { transportMode?: TransportMode }
@@ -19,10 +20,11 @@ const summary = ref<FutureInboundVolumeData['summary']>({
   truckPalletCount: 0,
 })
 
+const _defaultRange = getDatePresetRange('last7days')
 const query = reactive<FutureInboundQuery>({
   warehouseCode: String(route.query.warehouseCode ?? 'DE'),
-  dateStart: String(route.query.dateStart ?? ''),
-  dateEnd: String(route.query.dateEnd ?? ''),
+  dateStart: String(route.query.dateStart || _defaultRange.dateStart),
+  dateEnd: String(route.query.dateEnd || _defaultRange.dateEnd),
   transportMode: (route.query.transportMode as TransportMode | undefined) ?? undefined,
 })
 
@@ -89,9 +91,28 @@ onMounted(fetchData)
       <el-button @click="reset">重置</el-button>
       <el-button @click="exportData">导出</el-button>
     </div>
-    <p class="summary">
-      总箱数 {{ summary.totalCartons }} / 总重量 {{ summary.totalWeightKg }} / 总体积 {{ summary.totalVolumeM3 }} / 海运柜数 {{ summary.seaContainerCount }} / 卡派板数 {{ summary.truckPalletCount }}
-    </p>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">总箱数</div>
+        <div class="stat-value">{{ summary.totalCartons }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总重量 (kg)</div>
+        <div class="stat-value">{{ summary.totalWeightKg }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总体积 (m³)</div>
+        <div class="stat-value">{{ summary.totalVolumeM3 }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">海运柜数</div>
+        <div class="stat-value">{{ summary.seaContainerCount }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">卡派板数</div>
+        <div class="stat-value">{{ summary.truckPalletCount }}</div>
+      </div>
+    </div>
     <el-table :data="rows" size="small" border>
       <el-table-column prop="arrivalDate" label="到货日期" width="120" />
       <el-table-column label="货运方式" width="100">
@@ -126,8 +147,29 @@ onMounted(fetchData)
   flex-wrap: wrap;
 }
 
-.summary {
-  margin: 8px 0 12px;
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 12px;
   color: #64748b;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
 }
 </style>

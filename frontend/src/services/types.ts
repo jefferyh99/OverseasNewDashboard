@@ -127,6 +127,8 @@ export interface InboundTransportRow {
   volumeM3: MetricSplit
   units: MetricSplit
   skuCount: MetricSplit
+  seaContainerCount: number | null
+  truckPalletCount: number | null
 }
 
 export interface TomorrowInboundSummary {
@@ -135,6 +137,8 @@ export interface TomorrowInboundSummary {
   totalVolumeM3: number
   totalUnits: number
   totalSkuCount: number
+  seaContainerCount: number
+  truckPalletCount: number
 }
 
 export interface TomorrowInboundTransportRow {
@@ -144,6 +148,8 @@ export interface TomorrowInboundTransportRow {
   totalVolumeM3: number
   totalUnits: number
   totalSkuCount: number
+  seaContainerCount: number | null
+  truckPalletCount: number | null
 }
 
 export interface FutureInboundForecastBar {
@@ -166,6 +172,8 @@ export interface WorkloadDashboardData {
     totalVolumeM3: MetricSplit
     totalUnits: MetricSplit
     totalSkuCount: MetricSplit
+    seaContainerCount: number
+    truckPalletCount: number
   }
   todayInbound: InboundTransportRow[]
   tomorrowInboundSummary: TomorrowInboundSummary

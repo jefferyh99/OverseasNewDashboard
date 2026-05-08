@@ -1,4 +1,4 @@
-export type DatePreset = 'today' | 'tomorrow' | 'future7days'
+export type DatePreset = 'today' | 'tomorrow' | 'future7days' | 'last7days'
 
 export function getDatePresetRange(preset: DatePreset) {
   const now = new Date()
@@ -13,6 +13,10 @@ export function getDatePresetRange(preset: DatePreset) {
   if (preset === 'future7days') {
     start.setDate(start.getDate() + 1)
     end.setDate(end.getDate() + 7)
+  }
+
+  if (preset === 'last7days') {
+    start.setDate(start.getDate() - 6)
   }
 
   return {

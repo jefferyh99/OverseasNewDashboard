@@ -37,16 +37,26 @@ function formatTotal(value: number) {
         <template v-else>{{ formatTotal(row.totalVolumeM3) }}</template>
       </template>
     </el-table-column>
-    <el-table-column label="总件数">
+    <el-table-column label="总件数" width="100">
       <template #default="{ row }">
         <template v-if="props.showStatusSplit">{{ formatTotal(row.units.total) }}</template>
         <template v-else>{{ formatTotal(row.totalUnits) }}</template>
       </template>
     </el-table-column>
-    <el-table-column label="总SKU数">
+    <el-table-column label="总SKU数" width="100">
       <template #default="{ row }">
         <template v-if="props.showStatusSplit">{{ formatTotal(row.skuCount.total) }}</template>
         <template v-else>{{ formatTotal(row.totalSkuCount) }}</template>
+      </template>
+    </el-table-column>
+    <el-table-column label="卡派板数" width="100">
+      <template #default="{ row }">
+        {{ row.transportMode === 'truck' ? (row.truckPalletCount ?? '-') : '-' }}
+      </template>
+    </el-table-column>
+    <el-table-column label="海运柜数" width="100">
+      <template #default="{ row }">
+        {{ row.transportMode === 'sea' ? (row.seaContainerCount ?? '-') : '-' }}
       </template>
     </el-table-column>
   </el-table>

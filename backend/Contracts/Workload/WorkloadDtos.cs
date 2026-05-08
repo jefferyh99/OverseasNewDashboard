@@ -9,7 +9,9 @@ public sealed record TodayInboundSummary(
     MetricSplit TotalWeightKg,
     MetricSplit TotalVolumeM3,
     MetricSplit TotalUnits,
-    MetricSplit TotalSkuCount);
+    MetricSplit TotalSkuCount,
+    int SeaContainerCount,
+    int TruckPalletCount);
 
 public sealed record InboundTransportRow(
     string TransportMode,
@@ -17,14 +19,18 @@ public sealed record InboundTransportRow(
     MetricSplit WeightKg,
     MetricSplit VolumeM3,
     MetricSplit Units,
-    MetricSplit SkuCount);
+    MetricSplit SkuCount,
+    int? SeaContainerCount,
+    int? TruckPalletCount);
 
 public sealed record TomorrowInboundSummary(
     int TotalCartons,
     double TotalWeightKg,
     double TotalVolumeM3,
     int TotalUnits,
-    int TotalSkuCount);
+    int TotalSkuCount,
+    int SeaContainerCount,
+    int TruckPalletCount);
 
 public sealed record TomorrowInboundTransportRow(
     string TransportMode,
@@ -32,7 +38,9 @@ public sealed record TomorrowInboundTransportRow(
     double TotalWeightKg,
     double TotalVolumeM3,
     int TotalUnits,
-    int TotalSkuCount);
+    int TotalSkuCount,
+    int? SeaContainerCount,
+    int? TruckPalletCount);
 
 public sealed record OverdueTaskCard(string Code, string Title, int Total);
 

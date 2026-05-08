@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { workloadApi } from '@/services/api'
 import type { OutboundPackageDetailItem, StatusSplit, WorkloadOutboundQuery } from '@/services/types'
+import { getDatePresetRange } from '@/modules/workload/utils/datePresets'
 import { downloadCsv } from '@/modules/workload/utils/exportCsv'
 
 const route = useRoute()
@@ -10,10 +11,11 @@ const loading = ref(false)
 const rows = ref<OutboundPackageDetailItem[]>([])
 const summary = ref<StatusSplit>({ total: 0, processed: 0, pending: 0 })
 
+const _defaultRange = getDatePresetRange('last7days')
 const query = reactive<WorkloadOutboundQuery>({
   warehouseCode: String(route.query.warehouseCode ?? 'DE'),
-  dateStart: String(route.query.dateStart ?? ''),
-  dateEnd: String(route.query.dateEnd ?? ''),
+  dateStart: String(route.query.dateStart || _defaultRange.dateStart),
+  dateEnd: String(route.query.dateEnd || _defaultRange.dateEnd),
   processingStatus: (route.query.processingStatus as WorkloadOutboundQuery['processingStatus']) ?? 'all',
   keyword: String(route.query.keyword ?? ''),
 })
@@ -83,7 +85,20 @@ onMounted(fetchData)
       <el-button @click="reset">重置</el-button>
       <el-button @click="exportData">导出</el-button>
     </div>
-    <p class="summary">总量 {{ summary.total }} / 已处理 {{ summary.processed }} / 待处理 {{ summary.pending }}</p>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">总包裹量</div>
+        <div class="stat-value">{{ summary.total }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">已处理</div>
+        <div class="stat-value">{{ summary.processed }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">待处理</div>
+        <div class="stat-value stat-value--pending">{{ summary.pending }}</div>
+      </div>
+    </div>
     <el-table :data="rows" size="small" border>
       <el-table-column prop="orderId" label="订单号" width="160" />
       <el-table-column prop="customer" label="客户" width="120" />
@@ -113,8 +128,33 @@ onMounted(fetchData)
   flex-wrap: wrap;
 }
 
-.summary {
-  margin: 8px 0 12px;
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 12px;
   color: #64748b;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-value--pending {
+  color: #d97706;
 }
 </style>

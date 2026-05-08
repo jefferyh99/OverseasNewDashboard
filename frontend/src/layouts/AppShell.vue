@@ -14,16 +14,27 @@ interface GroupItem { label: string; key: string; icon: string; children: Omit<L
 type MenuItem = LeafItem | GroupItem
 
 const menuGroups: MenuItem[] = [
-  { label: '工作量看板', path: '/dashboard', icon: 'W' },
+  { label: '工作看板', path: '/dashboard', icon: 'W' },
   { label: '异常看板', path: '/anomaly-dashboard', icon: 'A' },
   {
     label: '异常管理',
     key: '/anomalies',
     icon: 'M',
     children: [
-      { label: '出库异常', path: '/anomalies/outbound' },
-      { label: '到仓不齐', path: '/anomalies/inbound' },
-      { label: '上架异常', path: '/anomalies/shelving' },
+      { label: '箱子出库异常', path: '/anomalies/outbound' },
+      { label: '入库单箱子到仓不齐', path: '/anomalies/inbound' },
+      { label: 'SKU上架异常', path: '/anomalies/shelving' },
+    ],
+  },
+  {
+    label: '工作管理',
+    key: '/workloads',
+    icon: 'J',
+    children: [
+      { label: '出库包裹详情', path: '/workloads/outbound-packages' },
+      { label: 'SKU详情', path: '/workloads/skus' },
+      { label: '箱子详情', path: '/workloads/cartons' },
+      { label: '待到仓货量详情', path: '/workloads/future-inbound-volume' },
     ],
   },
   {
@@ -60,7 +71,7 @@ function closeTab(path: string) {
 
 function getBreadcrumbs() {
   const meta = route.meta as Record<string, string>
-  const items: { label: string; path?: string }[] = [{ label: '工作量看板', path: '/dashboard' }]
+  const items: { label: string; path?: string }[] = [{ label: '工作看板', path: '/dashboard' }]
   if (meta.groupTitle && route.path !== '/dashboard') items.push({ label: meta.groupTitle })
   if (meta.title && route.path !== '/dashboard') items.push({ label: meta.title, path: route.path })
   return items

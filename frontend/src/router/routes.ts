@@ -39,7 +39,7 @@ export const routes: RouteRecordRaw[] = [
         path: 'dashboard',
         name: 'dashboard',
         component: WorkloadDashboardView,
-        meta: { title: '工作量看板', permission: 'workload-dashboard', requiresAuth: true },
+        meta: { title: '工作看板', permission: 'workload-dashboard', requiresAuth: true },
       },
       {
         path: 'anomaly-dashboard',
@@ -75,19 +75,19 @@ export const routes: RouteRecordRaw[] = [
         path: 'anomalies/outbound',
         name: 'anomaly-outbound',
         component: OutboundView,
-        meta: { title: '出库异常', permission: 'anomaly-outbound', groupTitle: '异常管理', requiresAuth: true },
+        meta: { title: '箱子出库异常', permission: 'anomaly-outbound', groupTitle: '异常管理', requiresAuth: true },
       },
       {
         path: 'anomalies/inbound',
         name: 'anomaly-inbound',
         component: InboundView,
-        meta: { title: '到仓不齐', permission: 'anomaly-inbound', groupTitle: '异常管理', requiresAuth: true },
+        meta: { title: '入库单箱子到仓不齐', permission: 'anomaly-inbound', groupTitle: '异常管理', requiresAuth: true },
       },
       {
         path: 'anomalies/shelving',
         name: 'anomaly-shelving',
         component: ShelvingView,
-        meta: { title: '上架异常', permission: 'anomaly-shelving', groupTitle: '异常管理', requiresAuth: true },
+        meta: { title: 'SKU上架异常', permission: 'anomaly-shelving', groupTitle: '异常管理', requiresAuth: true },
       },
       {
         path: 'settings/alerts',

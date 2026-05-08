@@ -41,8 +41,8 @@ public class DashboardController : ControllerBase
                 TimeStatus: isOverdue ? "overdue" : "remaining",
                 TimeValueMinutes: Math.Abs(minutesDiff),
                 TimeValueLabel: isOverdue
-                    ? $"overdue {Math.Abs(minutesDiff) / 60}h"
-                    : $"remaining {minutesDiff / 60}h",
+                    ? $"超时 {Math.Abs(minutesDiff) / 60} 小时"
+                    : $"剩余 {minutesDiff / 60} 小时",
                 PlannedCartonCount: null,
                 ArrivedCartonCount: null,
                 MissingCartonCount: null,
@@ -68,8 +68,8 @@ public class DashboardController : ControllerBase
                 TimeStatus: isOverdue ? "overdue" : "remaining",
                 TimeValueMinutes: Math.Abs(minutesDiff),
                 TimeValueLabel: isOverdue
-                    ? $"overdue {Math.Abs(minutesDiff) / 60}h"
-                    : $"remaining {minutesDiff / 60}h",
+                    ? $"超时 {Math.Abs(minutesDiff) / 60} 小时"
+                    : $"剩余 {minutesDiff / 60} 小时",
                 PlannedCartonCount: 50,
                 ArrivedCartonCount: 50 - i * 2,
                 MissingCartonCount: i * 2,
@@ -95,8 +95,8 @@ public class DashboardController : ControllerBase
                 TimeStatus: isOverdue ? "overdue" : "remaining",
                 TimeValueMinutes: Math.Abs(minutesDiff),
                 TimeValueLabel: isOverdue
-                    ? $"overdue {Math.Abs(minutesDiff / 60.0):F1}h"
-                    : $"remaining {minutesDiff / 60}h",
+                    ? $"超时 {Math.Abs(minutesDiff / 60.0):F1} 小时"
+                    : $"剩余 {minutesDiff / 60} 小时",
                 PlannedCartonCount: null,
                 ArrivedCartonCount: null,
                 MissingCartonCount: null,

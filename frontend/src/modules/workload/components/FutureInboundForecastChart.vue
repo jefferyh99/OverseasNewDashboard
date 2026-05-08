@@ -15,6 +15,7 @@ function renderChart() {
   if (!chart) chart = echarts.init(chartRef.value)
 
   chart.setOption({
+    dataset: { source: props.items },
     grid: { left: 48, right: 16, top: 24, bottom: 36 },
     tooltip: {
       trigger: 'axis',
@@ -33,7 +34,6 @@ function renderChart() {
     },
     xAxis: {
       type: 'category',
-      data: props.items.map((item) => item.arrivalDate),
       axisTick: { alignWithLabel: true },
     },
     yAxis: {
@@ -43,8 +43,7 @@ function renderChart() {
     series: [
       {
         type: 'bar',
-        data: props.items,
-        barWidth: 18,
+        barMaxWidth: 40,
         itemStyle: { color: '#1890ff' },
         encode: { x: 'arrivalDate', y: 'totalCartons' },
       },

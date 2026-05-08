@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { workloadApi } from '@/services/api'
 import type { CartonDetailData, CartonDetailItem, TransportMode, WorkloadCartonQuery } from '@/services/types'
 import { downloadCsv } from '@/modules/workload/utils/exportCsv'
+import { getDatePresetRange } from '@/modules/workload/utils/datePresets'
 import { formatTransportMode } from '@/modules/workload/utils/formatters'
 
 const route = useRoute()
@@ -19,10 +20,11 @@ const summary = ref<CartonDetailData['summary']>({
 
 const context = computed(() => (String(route.query.context ?? 'today') as 'today' | 'tomorrow'))
 
+const _defaultRange = getDatePresetRange('last7days')
 const query = reactive<WorkloadCartonQuery>({
   warehouseCode: String(route.query.warehouseCode ?? 'DE'),
-  dateStart: String(route.query.dateStart ?? ''),
-  dateEnd: String(route.query.dateEnd ?? ''),
+  dateStart: String(route.query.dateStart || _defaultRange.dateStart),
+  dateEnd: String(route.query.dateEnd || _defaultRange.dateEnd),
   processingStatus: (route.query.processingStatus as WorkloadCartonQuery['processingStatus']) ?? 'all',
   transportMode: (route.query.transportMode as TransportMode | undefined) ?? undefined,
   keyword: String(route.query.keyword ?? ''),
@@ -102,8 +104,36 @@ onMounted(fetchData)
       <el-button @click="reset">重置</el-button>
       <el-button @click="exportData">导出</el-button>
     </div>
-    <p v-if="context === 'today'" class="summary">总箱数 {{ summary.total }} / 已处理 {{ summary.processed }} / 待处理 {{ summary.pending }}</p>
-    <p v-else class="summary">总箱数 {{ summary.total }} / 总重量 {{ summary.totalWeightKg }} / 总体积 {{ summary.totalVolumeM3 }}</p>
+    <!-- 今天入口：总箱数 / 已处理 / 待处理 -->
+    <div v-if="context === 'today'" class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">总箱数</div>
+        <div class="stat-value">{{ summary.total }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">已处理</div>
+        <div class="stat-value">{{ summary.processed }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">待处理</div>
+        <div class="stat-value stat-value--pending">{{ summary.pending }}</div>
+      </div>
+    </div>
+    <!-- 明天入口：总箱数 / 总重量 / 总体积 -->
+    <div v-else class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">总箱数</div>
+        <div class="stat-value">{{ summary.total }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总重量 (kg)</div>
+        <div class="stat-value">{{ summary.totalWeightKg }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">总体积 (m³)</div>
+        <div class="stat-value">{{ summary.totalVolumeM3 }}</div>
+      </div>
+    </div>
     <el-table :data="rows" size="small" border>
       <el-table-column prop="cartonId" label="箱号" width="140" />
       <el-table-column prop="asnId" label="入库单号" width="140" />
@@ -135,8 +165,33 @@ onMounted(fetchData)
   flex-wrap: wrap;
 }
 
-.summary {
-  margin: 8px 0 12px;
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 12px;
   color: #64748b;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-value--pending {
+  color: #d97706;
 }
 </style>

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { workloadApi } from '@/services/api'
 import type { SkuDetailItem, StatusSplit, TransportMode, WorkloadSkuQuery } from '@/services/types'
 import { downloadCsv } from '@/modules/workload/utils/exportCsv'
+import { getDatePresetRange } from '@/modules/workload/utils/datePresets'
 import { formatTransportMode } from '@/modules/workload/utils/formatters'
 
 const route = useRoute()
@@ -11,10 +12,11 @@ const loading = ref(false)
 const rows = ref<SkuDetailItem[]>([])
 const summary = ref<StatusSplit>({ total: 0, processed: 0, pending: 0 })
 
+const _defaultRange = getDatePresetRange('last7days')
 const query = reactive<WorkloadSkuQuery>({
   warehouseCode: String(route.query.warehouseCode ?? 'DE'),
-  dateStart: String(route.query.dateStart ?? ''),
-  dateEnd: String(route.query.dateEnd ?? ''),
+  dateStart: String(route.query.dateStart || _defaultRange.dateStart),
+  dateEnd: String(route.query.dateEnd || _defaultRange.dateEnd),
   processingStatus: (route.query.processingStatus as WorkloadSkuQuery['processingStatus']) ?? 'all',
   transportMode: (route.query.transportMode as TransportMode | undefined) ?? undefined,
   keyword: String(route.query.keyword ?? ''),
@@ -95,7 +97,20 @@ onMounted(fetchData)
       <el-button @click="reset">重置</el-button>
       <el-button @click="exportData">导出</el-button>
     </div>
-    <p class="summary">总量 {{ summary.total }} / 已处理 {{ summary.processed }} / 待处理 {{ summary.pending }}</p>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">总 SKU 数</div>
+        <div class="stat-value">{{ summary.total }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">已处理</div>
+        <div class="stat-value">{{ summary.processed }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">待处理</div>
+        <div class="stat-value stat-value--pending">{{ summary.pending }}</div>
+      </div>
+    </div>
     <el-table :data="rows" size="small" border>
       <el-table-column prop="inventoryCode" label="库存编码" width="140" />
       <el-table-column prop="sku" label="SKU" width="120" />
@@ -130,8 +145,33 @@ onMounted(fetchData)
   flex-wrap: wrap;
 }
 
-.summary {
-  margin: 8px 0 12px;
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 12px;
   color: #64748b;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-value--pending {
+  color: #d97706;
 }
 </style>
