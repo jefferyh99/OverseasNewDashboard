@@ -22,6 +22,7 @@ import type {
   ShelvingData,
   ShelvingQuery,
   AlertsConfigData,
+  WarehouseClockConfig,
   DiagnosticsData,
 } from './types'
 
@@ -72,8 +73,13 @@ export const anomaliesApi = {
 }
 
 export const settingsApi = {
-  getAlerts: () =>
-    http.get<ApiResponse<AlertsConfigData>>('/settings/alerts'),
+  getAlerts: (warehouseId?: string) =>
+    http.get<ApiResponse<AlertsConfigData>>('/settings/alerts', {
+      params: warehouseId ? { warehouseId } : undefined,
+    }),
+
+  getAllAlerts: () =>
+    http.get<ApiResponse<WarehouseClockConfig[]>>('/settings/alerts/all'),
 
   saveAlerts: (data: Omit<AlertsConfigData, 'updatedAt' | 'updatedBy'>) =>
     http.put<ApiResponse<AlertsConfigData>>('/settings/alerts', data),

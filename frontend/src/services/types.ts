@@ -436,6 +436,11 @@ export interface AlertsConfigData {
   updatedBy: string
 }
 
+export interface WarehouseClockConfig {
+  warehouseId: string
+  timeZoneId: string
+}
+
 export interface DiagnosticsData {
   warehouse: { warehouseId: string; warehouseName: string }
   sync: {

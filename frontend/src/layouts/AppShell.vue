@@ -1,8 +1,9 @@
-﻿<script setup lang="ts">
-import { watch } from 'vue'
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useTabsStore } from '@/stores/tabs'
+import { settingsApi } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,6 +13,17 @@ const tabsStore = useTabsStore()
 interface LeafItem { label: string; path: string; icon: string }
 interface GroupItem { label: string; key: string; icon: string; children: Omit<LeafItem, 'icon'>[] }
 type MenuItem = LeafItem | GroupItem
+
+interface WarehouseClockConfigItem {
+  warehouseId: string
+  warehouseName: string
+  timeZoneId: string
+}
+
+interface WarehouseClockViewItem extends WarehouseClockConfigItem {
+  localDateTime: string
+  seasonLabel: '冬令时' | '夏令时'
+}
 
 const menuGroups: MenuItem[] = [
   { label: '工作看板', path: '/dashboard', icon: 'W' },
@@ -46,6 +58,16 @@ const menuGroups: MenuItem[] = [
     ],
   },
 ]
+
+const warehouseNameMap: Record<string, string> = {
+  DE: '德国仓',
+  ON: '安大略仓',
+}
+
+const clockConfigs = ref<WarehouseClockConfigItem[]>([])
+const clockItems = ref<WarehouseClockViewItem[]>([])
+let clockTimer: ReturnType<typeof setInterval> | null = null
+let clockConfigRefreshTimer: ReturnType<typeof setInterval> | null = null
 
 function isGroup(item: MenuItem): item is GroupItem {
   return 'children' in item
@@ -84,6 +106,79 @@ function handleUserCommand(cmd: string) {
     router.push('/login')
   }
 }
+
+function getDateTimeInZone(timeZoneId: string, at: Date) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: timeZoneId,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(at)
+
+  const partMap = Object.fromEntries(parts.map(part => [part.type, part.value]))
+  return `${partMap.year}-${partMap.month}-${partMap.day} ${partMap.hour}:${partMap.minute}:${partMap.second}`
+}
+
+function getSeasonLabel(timeZoneId: string, at: Date): '冬令时' | '夏令时' {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timeZoneId,
+    timeZoneName: 'long',
+  }).formatToParts(at)
+  const longName = parts.find(part => part.type === 'timeZoneName')?.value ?? ''
+  return /daylight|summer/i.test(longName) ? '夏令时' : '冬令时'
+}
+
+function rebuildClockItems(at: Date) {
+  clockItems.value = clockConfigs.value.map(item => ({
+    ...item,
+    localDateTime: getDateTimeInZone(item.timeZoneId, at),
+    seasonLabel: getSeasonLabel(item.timeZoneId, at),
+  }))
+}
+
+async function loadClockConfigs() {
+  try {
+    const response = await settingsApi.getAllAlerts()
+    const rows = response.data.data ?? []
+    clockConfigs.value = rows.map(row => ({
+      warehouseId: row.warehouseId,
+      warehouseName: warehouseNameMap[row.warehouseId] ?? row.warehouseId,
+      timeZoneId: row.timeZoneId,
+    }))
+    rebuildClockItems(new Date())
+  } catch {
+    // Keep UI functional even if clock data cannot be loaded.
+    clockConfigs.value = []
+    clockItems.value = []
+  }
+}
+
+onMounted(async () => {
+  await loadClockConfigs()
+
+  clockTimer = setInterval(() => {
+    rebuildClockItems(new Date())
+  }, 1000)
+
+  clockConfigRefreshTimer = setInterval(() => {
+    void loadClockConfigs()
+  }, 60_000)
+})
+
+onUnmounted(() => {
+  if (clockTimer) {
+    clearInterval(clockTimer)
+    clockTimer = null
+  }
+  if (clockConfigRefreshTimer) {
+    clearInterval(clockConfigRefreshTimer)
+    clockConfigRefreshTimer = null
+  }
+})
 </script>
 
 <template>
@@ -127,34 +222,36 @@ function handleUserCommand(cmd: string) {
 
     <div class="main">
       <header class="topbar">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item
-            v-for="crumb in getBreadcrumbs()"
-            :key="crumb.label"
-            :to="crumb.path"
-          >{{ crumb.label }}</el-breadcrumb-item>
-        </el-breadcrumb>
+        <div class="topbar-main">
+          <el-breadcrumb separator="/">
+            <el-breadcrumb-item
+              v-for="crumb in getBreadcrumbs()"
+              :key="crumb.label"
+              :to="crumb.path"
+            >{{ crumb.label }}</el-breadcrumb-item>
+          </el-breadcrumb>
 
-        <div class="user-area">
-          <el-dropdown trigger="click" @command="handleUserCommand">
-            <div class="user-btn">
-              <span class="avatar">{{ authStore.displayName.charAt(0) }}</span>
-              <span class="username">{{ authStore.displayName }}</span>
-              <svg viewBox="0 0 10 6" width="9" height="9" style="margin-left:2px;color:#94a3b8">
-                <path d="M0 0l5 6 5-6z" fill="currentColor" />
-              </svg>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item disabled style="font-size:12px;color:#94a3b8">
-                  {{ authStore.displayName }}
-                </el-dropdown-item>
-                <el-dropdown-item divided command="logout" style="color:#ef4444">
-                  退出登录
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <div class="user-area">
+            <el-dropdown trigger="click" @command="handleUserCommand">
+              <div class="user-btn">
+                <span class="avatar">{{ authStore.displayName.charAt(0) }}</span>
+                <span class="username">{{ authStore.displayName }}</span>
+                <svg viewBox="0 0 10 6" width="9" height="9" style="margin-left:2px;color:#94a3b8">
+                  <path d="M0 0l5 6 5-6z" fill="currentColor" />
+                </svg>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item disabled style="font-size:12px;color:#94a3b8">
+                    {{ authStore.displayName }}
+                  </el-dropdown-item>
+                  <el-dropdown-item divided command="logout" style="color:#ef4444">
+                    退出登录
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </header>
 
@@ -175,9 +272,16 @@ function handleUserCommand(cmd: string) {
           >×</button>
         </div>
       </nav>
-
+      <div v-if="clockItems.length > 0" class="world-clock-row">
+          <div v-for="item in clockItems" :key="item.warehouseId" class="world-clock-item">
+            <span class="clock-warehouse">{{ item.warehouseName }}</span>
+            <span class="clock-time">{{ item.localDateTime }}</span>
+            <span class="clock-zone">{{ item.timeZoneId }}</span>
+            <span class="clock-season">{{ item.seasonLabel }}</span>
+          </div>
+        </div>
       <main class="page-body">
-        <router-view />
+      <router-view />
       </main>
     </div>
   </div>
@@ -288,15 +392,54 @@ function handleUserCommand(cmd: string) {
 }
 
 .topbar {
-  height: 50px;
   background: #ffffff;
   border-bottom: 1px solid #e8edf3;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
   flex-shrink: 0;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.topbar-main {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.world-clock-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  background-color: white;
+  padding:10px 20px;
+  border-bottom: 1px solid #F0F2F5;
+}
+
+.world-clock-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.clock-warehouse { font-weight: 600; color: #0f172a; }
+.clock-time { font-variant-numeric: tabular-nums; }
+.clock-zone { color: #64748b; }
+.clock-season {
+  color: #0369a1;
+  background: #e0f2fe;
+  border-radius: 10px;
+  padding: 1px 6px;
 }
 
 :deep(.el-breadcrumb__inner) {

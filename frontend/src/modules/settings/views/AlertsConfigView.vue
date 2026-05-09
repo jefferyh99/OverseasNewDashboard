@@ -9,28 +9,104 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const saving = ref(false)
 const config = ref<AlertsConfigData | null>(null)
+const selectedWarehouseId = ref<'DE' | 'ON'>('DE')
+const newHolidayDate = ref('')
+
+const warehouseOptions = [
+  { label: '德国仓（DE）', value: 'DE' },
+  { label: '安大略仓（ON）', value: 'ON' },
+] as const
+
+const weekendOptions = [
+  { label: 'Monday', value: 'Monday' },
+  { label: 'Tuesday', value: 'Tuesday' },
+  { label: 'Wednesday', value: 'Wednesday' },
+  { label: 'Thursday', value: 'Thursday' },
+  { label: 'Friday', value: 'Friday' },
+  { label: 'Saturday', value: 'Saturday' },
+  { label: 'Sunday', value: 'Sunday' },
+]
+
+const timezoneIds = (() => {
+  const intlWithSupportedValues = Intl as typeof Intl & {
+    supportedValuesOf?: (key: 'timeZone') => string[]
+  }
+  const all = intlWithSupportedValues.supportedValuesOf?.('timeZone') ?? []
+
+  const ids = all
+    .filter(timeZoneId => timeZoneId.startsWith('America/') || timeZoneId.startsWith('Europe/'))
+    .sort((a, b) => a.localeCompare(b))
+
+  // Fallback for very old runtimes that do not expose Intl.supportedValuesOf
+  if (ids.length === 0) {
+    return ['America/Toronto', 'Europe/Berlin']
+  }
+
+  return ids
+})()
+
+function getOffsetLabel(timeZoneId: string) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timeZoneId,
+      timeZoneName: 'shortOffset',
+    }).formatToParts(new Date())
+    const raw = parts.find(part => part.type === 'timeZoneName')?.value ?? 'GMT+00:00'
+    return raw.replace('GMT', 'UTC')
+  } catch {
+    return 'UTC+00:00'
+  }
+}
+
+const timezoneOptions = timezoneIds.map(timeZoneId => ({
+  value: timeZoneId,
+  label: `(${getOffsetLabel(timeZoneId)}) ${timeZoneId}`,
+}))
+
 const outboundLeadTime = computed(
   () => config.value?.leadTimes.find(item => item.monitorType === 'outbound') ?? null,
 )
+
 const otherLeadTimes = computed(
   () => config.value?.leadTimes.filter(item => item.monitorType !== 'outbound') ?? [],
 )
 
 onMounted(async () => {
+  await loadConfig(selectedWarehouseId.value)
+})
+
+async function loadConfig(warehouseId: string) {
   loading.value = true
   try {
-    const res = await settingsApi.getAlerts()
+    const res = await settingsApi.getAlerts(warehouseId)
     config.value = res.data.data ?? null
+    if (config.value?.warehouseId) {
+      selectedWarehouseId.value = (config.value.warehouseId as 'DE' | 'ON')
+    }
   } finally {
     loading.value = false
   }
-})
+}
+
+async function handleWarehouseChange(value: 'DE' | 'ON') {
+  await loadConfig(value)
+}
+
+function addHoliday() {
+  if (!config.value || !newHolidayDate.value) return
+  if (!config.value.holidayDates.includes(newHolidayDate.value)) {
+    config.value.holidayDates.push(newHolidayDate.value)
+    config.value.holidayDates.sort()
+  }
+  newHolidayDate.value = ''
+}
 
 async function save() {
   if (!config.value) return
   saving.value = true
   try {
     const { updatedAt, updatedBy, ...payload } = config.value
+    payload.warehouseId = selectedWarehouseId.value
     const res = await settingsApi.saveAlerts(payload)
     config.value = res.data.data ?? config.value
     ElMessage.success('保存成功')
@@ -52,26 +128,58 @@ function monitorTypeLabel(t: string) {
   </div>
 
   <div v-else-if="config" class="settings-page">
+    <div class="section-card">
+      <div class="section-title">仓库配置</div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>仓库</label>
+          <el-select v-model="selectedWarehouseId" style="width: 260px" @change="handleWarehouseChange">
+            <el-option v-for="item in warehouseOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+      </div>
+    </div>
 
-    <!-- 出库规则配置 -->
     <div class="section-card">
       <div class="section-title">出库规则配置</div>
       <div class="field-grid">
         <div class="field-row">
           <label>仓库时区</label>
-          <el-input v-model="config.timeZoneId" />
+          <el-select v-model="config.timeZoneId" filterable style="width: 320px">
+            <el-option
+              v-for="item in timezoneOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </div>
         <div class="field-row">
           <label>冬令时截单时间</label>
-          <el-input v-model="config.outboundRule.cutoffTimeStandard" />
+          <el-time-picker
+            v-model="config.outboundRule.cutoffTimeStandard"
+            value-format="HH:mm"
+            format="HH:mm"
+            style="width: 160px"
+          />
         </div>
         <div class="field-row">
           <label>夏令时截单时间</label>
-          <el-input v-model="config.outboundRule.cutoffTimeDaylight" />
+          <el-time-picker
+            v-model="config.outboundRule.cutoffTimeDaylight"
+            value-format="HH:mm"
+            format="HH:mm"
+            style="width: 160px"
+          />
         </div>
         <div class="field-row">
           <label>超时时点</label>
-          <el-input v-model="config.outboundRule.overdueTime" />
+          <el-time-picker
+            v-model="config.outboundRule.overdueTime"
+            value-format="HH:mm"
+            format="HH:mm"
+            style="width: 160px"
+          />
         </div>
         <div v-if="outboundLeadTime" class="field-row">
           <label>出库预警提前量（小时）</label>
@@ -80,33 +188,43 @@ function monitorTypeLabel(t: string) {
       </div>
     </div>
 
-    <!-- 工作日历配置 -->
     <div class="section-card">
       <div class="section-title">工作日历配置</div>
       <div class="field-grid">
         <div class="field-row">
           <label>周末定义</label>
-          <el-select v-model="config.weekendDays" multiple>
-            <el-option label="Saturday" value="Saturday" />
-            <el-option label="Sunday" value="Sunday" />
+          <el-select v-model="config.weekendDays" multiple style="width: 320px">
+            <el-option v-for="item in weekendOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <div class="field-row">
+        <div class="field-row holiday-row">
           <label>法定节假日</label>
-          <div class="tag-edit">
-            <el-tag
-              v-for="(holiday, i) in config.holidayDates"
-              :key="holiday"
-              closable
-              @close="config!.holidayDates.splice(i, 1)"
-              style="margin-right:6px;margin-bottom:6px"
-            >{{ holiday }}</el-tag>
+          <div class="holiday-editor">
+            <div class="holiday-tools">
+              <el-date-picker
+                v-model="newHolidayDate"
+                type="date"
+                value-format="YYYY-MM-DD"
+                format="YYYY-MM-DD"
+                placeholder="选择日期"
+                style="width: 180px"
+              />
+              <el-button type="primary" plain size="small" @click="addHoliday">添加</el-button>
+            </div>
+            <div class="tag-edit">
+              <el-tag
+                v-for="(holiday, i) in config.holidayDates"
+                :key="holiday"
+                closable
+                @close="config!.holidayDates.splice(i, 1)"
+                style="margin-right:6px;margin-bottom:6px"
+              >{{ holiday }}</el-tag>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 提前预警时长 -->
     <div class="section-card">
       <div class="section-title">提前预警时长（小时）</div>
       <div class="field-grid">
@@ -117,7 +235,6 @@ function monitorTypeLabel(t: string) {
       </div>
     </div>
 
-    <!-- 严重阈值 -->
     <div class="section-card">
       <div class="section-title">严重告警阈值</div>
       <div class="field-grid">
@@ -128,7 +245,6 @@ function monitorTypeLabel(t: string) {
       </div>
     </div>
 
-    <!-- 推送渠道 -->
     <div class="section-card">
       <div class="section-title">推送渠道</div>
       <div class="channel-list">
@@ -142,7 +258,6 @@ function monitorTypeLabel(t: string) {
       </div>
     </div>
 
-    <!-- 接收人邮箱 -->
     <div class="section-card">
       <div class="section-title">接收邮箱</div>
       <div class="tag-edit">
@@ -156,12 +271,10 @@ function monitorTypeLabel(t: string) {
       </div>
     </div>
 
-    <!-- 更新信息 -->
     <div class="meta-row">
       最后保存：{{ new Date(config.updatedAt).toLocaleString('zh-CN') }}，操作人：{{ config.updatedBy }}
     </div>
 
-    <!-- 保存按钮 -->
     <div>
       <el-button
         v-if="authStore.hasButton('settings-alerts-save')"
@@ -170,13 +283,12 @@ function monitorTypeLabel(t: string) {
         @click="save"
       >保存配置</el-button>
     </div>
-
   </div>
 </template>
 
 <style scoped>
 .page-loading { padding: 24px; }
-.settings-page { display: flex; flex-direction: column; gap: 16px; max-width: 680px; }
+.settings-page { display: flex; flex-direction: column; gap: 16px; max-width: 760px; }
 
 .section-card {
   background: #fff;
@@ -200,6 +312,10 @@ function monitorTypeLabel(t: string) {
   color: #374151;
 }
 .field-row label { width: 180px; flex-shrink: 0; }
+
+.holiday-row { align-items: flex-start; }
+.holiday-editor { display: flex; flex-direction: column; gap: 8px; }
+.holiday-tools { display: flex; align-items: center; gap: 8px; }
 
 .channel-list { display: flex; flex-direction: column; gap: 10px; }
 .channel-row { display: flex; align-items: center; gap: 10px; }

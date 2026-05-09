@@ -45,6 +45,11 @@ public sealed class AlertsSettingsStore
     public AlertsConfigResponse Get(string warehouseId)
         => _configs.TryGetValue(warehouseId, out var config) ? config : _configs["DE"];
 
+    public IReadOnlyList<AlertsConfigResponse> GetAll()
+        => _configs.Values
+            .OrderBy(x => x.WarehouseId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
     public AlertsConfigResponse Save(SaveAlertsConfigRequest request)
     {
         var saved = new AlertsConfigResponse(

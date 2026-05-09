@@ -67,4 +67,20 @@ public class SettingsControllerTests(WebApplicationFactory<Program> factory)
         Assert.Equal(2, payload.Data.LeadTimes.Single(x => x.MonitorType == "outbound").LeadTimeHours);
         Assert.Equal(["2026-12-24"], payload.Data.HolidayDates);
     }
+
+    [Fact]
+    public async Task Alerts_all_returns_all_configured_warehouses()
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer mock-jwt-token");
+
+        var response = await client.GetAsync("/api/settings/alerts/all");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<ApiResponse<IReadOnlyList<AlertsConfigResponse>>>();
+        Assert.NotNull(payload?.Data);
+        Assert.Contains(payload!.Data!, x => x.WarehouseId == "DE");
+        Assert.Contains(payload.Data!, x => x.WarehouseId == "ON");
+    }
 }

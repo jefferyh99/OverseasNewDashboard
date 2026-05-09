@@ -11,6 +11,10 @@ namespace OpsMonitor.Api.Controllers;
 [Authorize]
 public class SettingsController(AlertsSettingsStore settingsStore) : ControllerBase
 {
+    [HttpGet("alerts/all")]
+    public IActionResult GetAllAlerts() =>
+        Ok(ApiResponse<IReadOnlyList<AlertsConfigResponse>>.Ok(settingsStore.GetAll()));
+
     [HttpGet("alerts")]
     public IActionResult GetAlerts([FromQuery] string warehouseId = "DE") =>
         Ok(ApiResponse<AlertsConfigResponse>.Ok(settingsStore.Get(warehouseId)));
