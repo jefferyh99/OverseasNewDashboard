@@ -10,7 +10,11 @@ public sealed record AnomalySummary(int Total, int ImminentCount, int OverdueCou
 
 public sealed record OutboundItem(
     string OrderId,
-    string CustomerOrChannel,
+    string Customer,
+    string LogisticsProvider,
+    string TrackingNo,
+    string ProductService,
+    string ShippingRule,
     DateTimeOffset OrderTime,
     DateTimeOffset DeadlineAt,
     string TimeStatus,

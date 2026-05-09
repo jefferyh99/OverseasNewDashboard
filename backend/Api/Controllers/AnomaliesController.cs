@@ -33,9 +33,9 @@ public class AnomaliesController(
         var rule = ruleProvider.GetRule(warehouseCode);
         var seeds = new[]
         {
-            new { OrderId = $"{orderPrefix}-SO20260504001", CustomerOrChannel = "客户A / 渠道A", OrderTime = now.AddHours(-30), CurrentStatus = "待出库", Shipped = false },
-            new { OrderId = $"{orderPrefix}-SO20260504002", CustomerOrChannel = "客户B / 渠道B", OrderTime = now.AddHours(-4), CurrentStatus = "待出库", Shipped = false },
-            new { OrderId = $"{orderPrefix}-SO20260504003", CustomerOrChannel = "客户C / 渠道C", OrderTime = now.AddHours(-2), CurrentStatus = "已出库", Shipped = true },
+            new { OrderId = $"{orderPrefix}-SO20260504001", Customer = "客户A", LogisticsProvider = "DHL", TrackingNo = $"{orderPrefix}TRK0001", ProductService = "Express", ShippingRule = "Standard", OrderTime = now.AddHours(-30), CurrentStatus = "待出库", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504002", Customer = "客户B", LogisticsProvider = "UPS", TrackingNo = $"{orderPrefix}TRK0002", ProductService = "Economy", ShippingRule = "Priority", OrderTime = now.AddHours(-4), CurrentStatus = "待出库", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504003", Customer = "客户C", LogisticsProvider = "FedEx", TrackingNo = $"{orderPrefix}TRK0003", ProductService = "Express", ShippingRule = "Standard", OrderTime = now.AddHours(-2), CurrentStatus = "已出库", Shipped = true },
         };
 
         var items = seeds.Select(seed =>
@@ -49,7 +49,11 @@ public class AnomaliesController(
 
             return new OutboundItem(
                 OrderId: seed.OrderId,
-                CustomerOrChannel: seed.CustomerOrChannel,
+                Customer: seed.Customer,
+                LogisticsProvider: seed.LogisticsProvider,
+                TrackingNo: seed.TrackingNo,
+                ProductService: seed.ProductService,
+                ShippingRule: seed.ShippingRule,
                 OrderTime: seed.OrderTime,
                 DeadlineAt: deadline.OverdueAtUtc,
                 TimeStatus: overdueReached ? "overdue" : "remaining",

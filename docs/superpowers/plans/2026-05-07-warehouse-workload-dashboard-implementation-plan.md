@@ -514,7 +514,7 @@ private static bool MatchTransport(string actualMode, string? transportMode) =>
 ```csharp
 var overdueTasks = new[]
 {
-    new OverdueTaskCard("outbound", "箱子出库异常", 12),
+    new OverdueTaskCard("outbound", "包裹出库异常", 12),
     new OverdueTaskCard("inbound", "入库单箱子到仓不齐", 7),
     new OverdueTaskCard("shelving", "SKU上架异常", 9),
 };

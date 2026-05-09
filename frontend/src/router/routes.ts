@@ -75,7 +75,7 @@ export const routes: RouteRecordRaw[] = [
         path: 'anomalies/outbound',
         name: 'anomaly-outbound',
         component: OutboundView,
-        meta: { title: '箱子出库异常', permission: 'anomaly-outbound', groupTitle: '异常管理', requiresAuth: true },
+        meta: { title: '包裹出库异常', permission: 'anomaly-outbound', groupTitle: '异常管理', requiresAuth: true },
       },
       {
         path: 'anomalies/inbound',

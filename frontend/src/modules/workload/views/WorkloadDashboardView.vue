@@ -112,7 +112,7 @@ onMounted(loadData);
       </div>
       <div class="overdue-grid">
         <div class="overdue-card" @click="goOverdue('anomaly-outbound')">
-          <div class="overdue-title">箱子出库异常</div>
+          <div class="overdue-title">包裹出库异常</div>
           <div class="overdue-count">
             {{ data?.overdueTasks?.[0]?.total ?? 0 }}
           </div>

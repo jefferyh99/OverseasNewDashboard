@@ -140,7 +140,11 @@ function timeTagType(s: string) {
 
     <el-table v-loading="loading" :data="tableData" size="small" stripe border>
       <el-table-column prop="orderId" label="订单号" width="160" />
-      <el-table-column prop="customerOrChannel" label="客户/渠道" width="180" />
+      <el-table-column prop="customer" label="客户" width="120" />
+      <el-table-column prop="logisticsProvider" label="物流商" width="120" />
+      <el-table-column prop="trackingNo" label="挂号" width="160" />
+      <el-table-column prop="productService" label="产品服务" width="110" />
+      <el-table-column prop="shippingRule" label="发货规则" width="110" />
       <el-table-column prop="currentStatus" label="当前状态" width="120" />
       <el-table-column label="风险状态" width="100">
         <template #default="{ row }">

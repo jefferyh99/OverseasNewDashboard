@@ -31,9 +31,9 @@ public class DashboardController(
 
         var outboundItems = new[]
         {
-            new { OrderId = $"{orderPrefix}-SO20260504001", CustomerOrChannel = "CustomerA / ChannelA", OrderTime = now.AddHours(-30), CurrentStatus = "pending-outbound", Shipped = false },
-            new { OrderId = $"{orderPrefix}-SO20260504002", CustomerOrChannel = "CustomerB / ChannelB", OrderTime = now.AddHours(-4), CurrentStatus = "pending-outbound", Shipped = false },
-            new { OrderId = $"{orderPrefix}-SO20260504003", CustomerOrChannel = "CustomerC / ChannelC", OrderTime = now.AddHours(-2), CurrentStatus = "shipped", Shipped = true },
+            new { OrderId = $"{orderPrefix}-SO20260504001", Customer = "CustomerA", LogisticsProvider = "DHL", TrackingNo = $"{orderPrefix}TRK0001", ProductService = "Express", ShippingRule = "Standard", OrderTime = now.AddHours(-30), CurrentStatus = "pending-outbound", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504002", Customer = "CustomerB", LogisticsProvider = "UPS", TrackingNo = $"{orderPrefix}TRK0002", ProductService = "Economy", ShippingRule = "Priority", OrderTime = now.AddHours(-4), CurrentStatus = "pending-outbound", Shipped = false },
+            new { OrderId = $"{orderPrefix}-SO20260504003", Customer = "CustomerC", LogisticsProvider = "FedEx", TrackingNo = $"{orderPrefix}TRK0003", ProductService = "Express", ShippingRule = "Standard", OrderTime = now.AddHours(-2), CurrentStatus = "shipped", Shipped = true },
         }
         .Select(seed =>
         {
@@ -47,7 +47,11 @@ public class DashboardController(
             return new
             {
                 seed.OrderId,
-                seed.CustomerOrChannel,
+                seed.Customer,
+                seed.LogisticsProvider,
+                seed.TrackingNo,
+                seed.ProductService,
+                seed.ShippingRule,
                 seed.OrderTime,
                 seed.CurrentStatus,
                 seed.Shipped,
@@ -66,7 +70,11 @@ public class DashboardController(
             OrderId: x.OrderId,
             AsnId: null,
             CartonId: null,
-            CustomerOrChannel: x.CustomerOrChannel,
+            Customer: x.Customer,
+            LogisticsProvider: x.LogisticsProvider,
+            TrackingNo: x.TrackingNo,
+            ProductService: x.ProductService,
+            ShippingRule: x.ShippingRule,
             OrderTime: x.OrderTime,
             FirstArrivalTime: null,
             ArrivalTime: null,
@@ -91,7 +99,11 @@ public class DashboardController(
                 OrderId: null,
                 AsnId: $"ASN2026050400{i}",
                 CartonId: null,
-                CustomerOrChannel: null,
+                Customer: null,
+                LogisticsProvider: null,
+                TrackingNo: null,
+                ProductService: null,
+                ShippingRule: null,
                 OrderTime: null,
                 FirstArrivalTime: now.AddDays(-i),
                 ArrivalTime: null,
@@ -118,7 +130,11 @@ public class DashboardController(
                 OrderId: null,
                 AsnId: $"ASN202605030{i:D2}",
                 CartonId: $"CTN2026050400{i}",
-                CustomerOrChannel: null,
+                Customer: null,
+                LogisticsProvider: null,
+                TrackingNo: null,
+                ProductService: null,
+                ShippingRule: null,
                 OrderTime: null,
                 FirstArrivalTime: null,
                 ArrivalTime: now.AddDays(-i),

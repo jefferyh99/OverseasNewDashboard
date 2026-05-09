@@ -33,7 +33,7 @@ const menuGroups: MenuItem[] = [
     key: '/anomalies',
     icon: 'M',
     children: [
-      { label: '箱子出库异常', path: '/anomalies/outbound' },
+      { label: '包裹出库异常', path: '/anomalies/outbound' },
       { label: '入库单箱子到仓不齐', path: '/anomalies/inbound' },
       { label: 'SKU上架异常', path: '/anomalies/shelving' },
     ],

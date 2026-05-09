@@ -50,7 +50,11 @@ export interface AnomalyPreviewItem {
   orderId?: string
   asnId?: string
   cartonId?: string
-  customerOrChannel?: string
+  customer?: string
+  logisticsProvider?: string
+  trackingNo?: string
+  productService?: string
+  shippingRule?: string
   orderTime?: string
   firstArrivalTime?: string
   arrivalTime?: string
@@ -305,7 +309,11 @@ export interface AnomalySummary {
 
 export interface OutboundItem {
   orderId: string
-  customerOrChannel: string
+  customer: string
+  logisticsProvider: string
+  trackingNo: string
+  productService: string
+  shippingRule: string
   orderTime: string
   deadlineAt: string
   timeStatus: string

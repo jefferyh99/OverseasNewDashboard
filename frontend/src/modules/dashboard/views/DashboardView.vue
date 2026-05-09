@@ -70,7 +70,7 @@ onMounted(loadData)
       </div>
       <div class="anomaly-grid">
         <div class="anomaly-card" @click="goAnomalyPage('outbound')">
-          <div class="anomaly-card-title">箱子出库异常</div>
+          <div class="anomaly-card-title">包裹出库异常</div>
           <div class="anomaly-card-total">{{ data.todayOverview.outboundRiskCount }}</div>
           <div class="anomaly-card-sub">
             <span class="sub-imminent">即将 {{ data.anomalyPreview.outbound.imminentCount }}</span>
@@ -101,12 +101,16 @@ onMounted(loadData)
 
     <section class="panel">
       <div class="section-header">
-        <h2 class="section-title">箱子出库异常预览</h2>
+        <h2 class="section-title">包裹出库异常预览</h2>
         <el-button link type="primary" @click="goAnomalyPage('outbound')">查看全部 →</el-button>
       </div>
       <el-table :data="(data.anomalyPreview.outbound.items as AnomalyPreviewItem[])" size="small" stripe>
         <el-table-column label="订单号" width="160" :formatter="(row: AnomalyPreviewItem) => row.orderId ?? ''" />
-        <el-table-column label="客户/渠道" width="180" :formatter="(row: AnomalyPreviewItem) => row.customerOrChannel ?? ''" />
+        <el-table-column label="客户" width="120" :formatter="(row: AnomalyPreviewItem) => row.customer ?? ''" />
+        <el-table-column label="物流商" width="120" :formatter="(row: AnomalyPreviewItem) => row.logisticsProvider ?? ''" />
+        <el-table-column label="挂号" width="160" :formatter="(row: AnomalyPreviewItem) => row.trackingNo ?? ''" />
+        <el-table-column label="产品服务" width="110" :formatter="(row: AnomalyPreviewItem) => row.productService ?? ''" />
+        <el-table-column label="发货规则" width="110" :formatter="(row: AnomalyPreviewItem) => row.shippingRule ?? ''" />
         <el-table-column label="风险状态" width="100">
           <template #default="{ row }">
             <el-tag :type="riskTagType(row.riskStatus)" size="small">{{ riskLabel(row.riskStatus) }}</el-tag>
