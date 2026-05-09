@@ -24,10 +24,14 @@ public class SettingsControllerTests(WebApplicationFactory<Program> factory)
         Assert.NotNull(payload?.Data);
         Assert.Equal("DE", payload!.Data!.WarehouseId);
         Assert.Equal("Europe/Berlin", payload.Data.TimeZoneId);
+        Assert.Equal("08:00", payload.Data.WorkingHours.StartTime);
+        Assert.Equal("17:00", payload.Data.WorkingHours.EndTime);
         Assert.Equal("16:00", payload.Data.OutboundRule.CutoffTimeStandard);
         Assert.Equal("15:00", payload.Data.OutboundRule.CutoffTimeDaylight);
         Assert.Equal("18:00", payload.Data.OutboundRule.OverdueTime);
         Assert.Equal(1, payload.Data.LeadTimes.Single(x => x.MonitorType == "outbound").LeadTimeHours);
+        Assert.Equal(3, payload.Data.ShelvingRule.SlaDays);
+        Assert.Equal(3, payload.Data.InboundIncompleteRule.SlaDays);
         Assert.Contains("Saturday", payload.Data.WeekendDays);
         Assert.NotEmpty(payload.Data.HolidayDates);
     }
@@ -42,16 +46,16 @@ public class SettingsControllerTests(WebApplicationFactory<Program> factory)
         var request = new SaveAlertsConfigRequest(
             WarehouseId: warehouseId,
             TimeZoneId: "Europe/Berlin",
+            WorkingHours: new("08:30", "17:30"),
             WeekendDays: ["Saturday", "Sunday"],
             HolidayDates: ["2026-12-24"],
             LeadTimes:
             [
                 new("outbound", 2),
-                new("inbound", 12),
-                new("shelving", 12),
             ],
             OutboundRule: new("17:00", "16:00", "19:00"),
-            SeverityThresholds: [new("outbound", "overdue-count", 25)],
+            ShelvingRule: new("18:00", 10, 4),
+            InboundIncompleteRule: new("18:30", 11, 5),
             Receivers: new(["u010"], ["g010"], ["de-ops@example.com"]),
             Channels: [new("wechat", true), new("email", false)]);
 
@@ -65,6 +69,9 @@ public class SettingsControllerTests(WebApplicationFactory<Program> factory)
         Assert.Equal("17:00", payload!.Data!.OutboundRule.CutoffTimeStandard);
         Assert.Equal("19:00", payload.Data.OutboundRule.OverdueTime);
         Assert.Equal(2, payload.Data.LeadTimes.Single(x => x.MonitorType == "outbound").LeadTimeHours);
+        Assert.Equal("08:30", payload.Data.WorkingHours.StartTime);
+        Assert.Equal(10, payload.Data.ShelvingRule.WarningLeadHours);
+        Assert.Equal(5, payload.Data.InboundIncompleteRule.SlaDays);
         Assert.Equal(["2026-12-24"], payload.Data.HolidayDates);
     }
 

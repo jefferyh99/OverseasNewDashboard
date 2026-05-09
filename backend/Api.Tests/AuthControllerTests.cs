@@ -89,5 +89,6 @@ public class AuthControllerTests(WebApplicationFactory<Program> factory)
         Assert.Contains("anomaly-inbound", permissions);
         Assert.Contains("anomaly-shelving", permissions);
         Assert.Contains("settings-alerts", permissions);
+        Assert.Contains("prototype-wecom-notification", permissions);
     }
 }

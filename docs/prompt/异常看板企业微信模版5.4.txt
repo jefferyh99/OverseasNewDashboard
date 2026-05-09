@@ -1,0 +1,95 @@
+异常看板企业微信文字模板（工作日）
+
+一、通知类型
+1. 即将超时提醒
+2. 已超时提醒
+
+二、触发方式
+1. 即将超时提醒与已超时提醒分开发送，不合并。
+2. 发送时机按仓库配置的当地时间规则触发。
+3. 不同仓库可配置不同的即将超时与已超时时间。
+4. 需兼容当地时区及冬夏令时规则。
+
+三、展示口径
+1. 包裹出库异常：单位为个，按发货规则汇总 Top5。
+2. SKU上架异常：单位为件，按客户汇总 Top5。
+3. 入库单箱子到仓不齐：单位为箱，按货运方式汇总 Top5。
+4. 固定顺序：包裹出库异常 -> SKU上架异常 -> 入库单箱子到仓不齐。
+5. 每个模块先写汇总，再写分组明细。
+6. 无数据时显示 0，不留空。
+7. 某类异常无分组数据时，Top5 显示为无。
+8. 每条消息标题包含：仓库、提醒类型、日期时间。
+
+四、即将超时提醒模板
+【异常看板 | {仓库名称} | 即将超时提醒 | {日期时间}】
+触发方式：按 {仓库名称} 配置的即将超时规则触发
+
+一、即将超时汇总
+包裹出库异常 {imminent_outbound_total} 个
+SKU上架异常 {imminent_putaway_total} 件
+入库单箱子到仓不齐 {imminent_inbound_missing_total} 箱
+
+二、异常分布明细
+1) 包裹出库异常
+按发货规则 Top5：
+{shipping_rule_1} {imminent_outbound_count_1} 个，
+{shipping_rule_2} {imminent_outbound_count_2} 个，
+{shipping_rule_3} {imminent_outbound_count_3} 个，
+{shipping_rule_4} {imminent_outbound_count_4} 个，
+{shipping_rule_5} {imminent_outbound_count_5} 个
+
+2) SKU上架异常
+按客户 Top5：
+{customer_1} {imminent_putaway_count_1} 件，
+{customer_2} {imminent_putaway_count_2} 件，
+{customer_3} {imminent_putaway_count_3} 件，
+{customer_4} {imminent_putaway_count_4} 件，
+{customer_5} {imminent_putaway_count_5} 件
+
+3) 入库单箱子到仓不齐
+按货运方式 Top5：
+{transport_1} {imminent_inbound_count_1} 箱，
+{transport_2} {imminent_inbound_count_2} 箱，
+{transport_3} {imminent_inbound_count_3} 箱，
+{transport_4} {imminent_inbound_count_4} 箱，
+{transport_5} {imminent_inbound_count_5} 箱
+
+三、提醒
+以上任务已接近超时，请仓库优先安排处理。
+
+五、已超时提醒模板
+【异常看板 | {仓库名称} | 已超时提醒 | {日期时间}】
+触发方式：按 {仓库名称} 配置的已超时规则触发
+
+一、已超时汇总
+包裹出库异常 {overdue_outbound_total} 个
+SKU上架异常 {overdue_putaway_total} 件
+入库单箱子到仓不齐 {overdue_inbound_missing_total} 箱
+
+二、异常分布明细
+1) 包裹出库异常
+按发货规则 Top5：
+{shipping_rule_1} {overdue_outbound_count_1} 个，
+{shipping_rule_2} {overdue_outbound_count_2} 个，
+{shipping_rule_3} {overdue_outbound_count_3} 个，
+{shipping_rule_4} {overdue_outbound_count_4} 个，
+{shipping_rule_5} {overdue_outbound_count_5} 个
+
+2) SKU上架异常
+按客户 Top5：
+{customer_1} {overdue_putaway_count_1} 件，
+{customer_2} {overdue_putaway_count_2} 件，
+{customer_3} {overdue_putaway_count_3} 件，
+{customer_4} {overdue_putaway_count_4} 件，
+{customer_5} {overdue_putaway_count_5} 件
+
+3) 入库单箱子到仓不齐
+按货运方式 Top5：
+{transport_1} {overdue_inbound_count_1} 箱，
+{transport_2} {overdue_inbound_count_2} 箱，
+{transport_3} {overdue_inbound_count_3} 箱，
+{transport_4} {overdue_inbound_count_4} 箱，
+{transport_5} {overdue_inbound_count_5} 箱
+
+三、提醒
+以上任务已超时，请仓库尽快处理并持续关注后续新增异常。

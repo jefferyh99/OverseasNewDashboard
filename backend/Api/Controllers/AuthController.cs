@@ -58,7 +58,8 @@ public class AuthController : ControllerBase
                 "anomaly-outbound",
                 "anomaly-inbound",
                 "anomaly-shelving",
-                "settings-alerts"
+                "settings-alerts",
+                "prototype-wecom-notification"
             ],
             ButtonPermissions: ["settings-alerts-save"]);
 

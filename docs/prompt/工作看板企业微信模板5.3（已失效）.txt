@@ -1,0 +1,64 @@
+工作看板企业微信文字模板（工作日）
+
+一、发送时段
+1. 上班前：当地时间 08:00
+2. 中午复盘：当地时间 12:00
+
+二、通用排版规则（仅文字）
+1. 固定顺序：已超时待处理任务 -> 今天待处理任务 -> 明天待处理任务。
+2. 每个模块先写汇总，再写分组明细。
+3. 所有数字必须带单位（包裹/件/箱/kg/m3）。
+4. 无数据必须显示 0，不留空。
+5. 分组建议最多展示前 5 项，其余合并为“其他”。
+6. 每条消息标题包含：仓库、日期、发送时段。
+
+三、08:00 发送模板（排班版）
+【工作看板 | {仓库名称} | 08:00 | {日期}】
+
+一、已超时待处理任务
+- 汇总：总 {overdue_total}
+- 明细：出库 {overdue_outbound}，上架 {overdue_putaway}，到仓 {overdue_inbound}
+
+二、今天待处理任务
+1) 今天待出库包裹
+- 汇总：总 {today_outbound_total}，已处理 {today_outbound_done}，待处理 {today_outbound_todo}
+- 待处理按发货规则：
+  {shipping_rule_1} {count_1}包裹，{shipping_rule_2} {count_2}包裹，{shipping_rule_3} {count_3}包裹
+
+2) 今天待上架 SKU
+- 汇总：总 {today_putaway_total}件，已处理 {today_putaway_done}件，待处理 {today_putaway_todo}件
+- 待处理按客户：
+  {customer_1} {sku_count_1}件，{customer_2} {sku_count_2}件，{customer_3} {sku_count_3}件
+
+3) 今天待到仓箱子
+- 汇总：总 {today_inbound_total_box}箱，{today_inbound_total_weight}kg，{today_inbound_total_volume}m3
+- 按货运方式（已处理/待处理）：
+  {transport_1}：已处理 {t1_done_box}箱/{t1_done_weight}kg/{t1_done_volume}m3；待处理 {t1_todo_box}箱/{t1_todo_weight}kg/{t1_todo_volume}m3
+  {transport_2}：已处理 {t2_done_box}箱/{t2_done_weight}kg/{t2_done_volume}m3；待处理 {t2_todo_box}箱/{t2_todo_weight}kg/{t2_todo_volume}m3
+
+三、明天待处理任务
+1) 明天待到仓箱子
+- 汇总：总 {tomorrow_inbound_total_box}箱，{tomorrow_inbound_total_weight}kg，{tomorrow_inbound_total_volume}m3
+- 按货运方式：
+  {tom_transport_1} {tom_t1_box}箱/{tom_t1_weight}kg/{tom_t1_volume}m3，{tom_transport_2} {tom_t2_box}箱/{tom_t2_weight}kg/{tom_t2_volume}m3
+
+四、12:00 发送模板（追进度版）
+【工作看板 | {仓库名称} | 12:00 | {日期}】
+
+一、上午进度（相对 08:00）
+- 已超时待处理任务：当前 {overdue_total_now}（较 08:00 {overdue_delta}）
+- 今天待出库包裹待处理：当前 {today_outbound_todo_now}（较 08:00 {today_outbound_todo_delta}）
+- 今天待上架 SKU 待处理：当前 {today_putaway_todo_now}件（较 08:00 {today_putaway_todo_delta}件）
+- 今天待到仓箱子待处理：当前 {today_inbound_todo_box_now}箱（较 08:00 {today_inbound_todo_box_delta}箱）
+
+二、当前待处理明细（口径同 08:00）
+1) 待出库按发货规则：{shipping_rule_1} {count_1}包裹，{shipping_rule_2} {count_2}包裹，{shipping_rule_3} {count_3}包裹
+2) 待上架按客户：{customer_1} {sku_count_1}件，{customer_2} {sku_count_2}件，{customer_3} {sku_count_3}件
+3) 待到仓按货运方式（已处理/待处理）：
+   {transport_1}：已处理 {t1_done_box}箱/{t1_done_weight}kg/{t1_done_volume}m3；待处理 {t1_todo_box}箱/{t1_todo_weight}kg/{t1_todo_volume}m3
+   {transport_2}：已处理 {t2_done_box}箱/{t2_done_weight}kg/{t2_done_volume}m3；待处理 {t2_todo_box}箱/{t2_todo_weight}kg/{t2_todo_volume}m3
+
+三、明天待处理任务
+1) 明天待到仓箱子
+- 汇总：总 {tomorrow_inbound_total_box}箱，{tomorrow_inbound_total_weight}kg，{tomorrow_inbound_total_volume}m3
+- 按货运方式：{tom_transport_1} {tom_t1_box}箱/{tom_t1_weight}kg/{tom_t1_volume}m3，{tom_transport_2} {tom_t2_box}箱/{tom_t2_weight}kg/{tom_t2_volume}m3

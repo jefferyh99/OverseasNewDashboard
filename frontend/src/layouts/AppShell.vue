@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -55,6 +55,14 @@ const menuGroups: MenuItem[] = [
     icon: 'S',
     children: [
       { label: '提醒配置', path: '/settings/alerts' },
+    ],
+  },
+  {
+    label: '原型',
+    key: '/prototypes',
+    icon: 'P',
+    children: [
+      { label: '企微通知原型', path: '/prototypes/wecom-notification' },
     ],
   },
 ]
@@ -246,7 +254,7 @@ onUnmounted(() => {
                     {{ authStore.displayName }}
                   </el-dropdown-item>
                   <el-dropdown-item divided command="logout" style="color:#ef4444">
-                    退出登录
+                    閫€鍑虹櫥褰?
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -574,3 +582,5 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 </style>
+
+

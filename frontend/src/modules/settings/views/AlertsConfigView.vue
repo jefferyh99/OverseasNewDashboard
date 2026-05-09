@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { settingsApi } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
@@ -14,7 +14,7 @@ const newHolidayDate = ref('')
 
 const warehouseOptions = [
   { label: '德国仓（DE）', value: 'DE' },
-  { label: '安大略仓（ON）', value: 'ON' },
+  { label: '加拿大仓（ON）', value: 'ON' },
 ] as const
 
 const weekendOptions = [
@@ -37,7 +37,6 @@ const timezoneIds = (() => {
     .filter(timeZoneId => timeZoneId.startsWith('America/') || timeZoneId.startsWith('Europe/'))
     .sort((a, b) => a.localeCompare(b))
 
-  // Fallback for very old runtimes that do not expose Intl.supportedValuesOf
   if (ids.length === 0) {
     return ['America/Toronto', 'Europe/Berlin']
   }
@@ -67,10 +66,6 @@ const outboundLeadTime = computed(
   () => config.value?.leadTimes.find(item => item.monitorType === 'outbound') ?? null,
 )
 
-const otherLeadTimes = computed(
-  () => config.value?.leadTimes.filter(item => item.monitorType !== 'outbound') ?? [],
-)
-
 onMounted(async () => {
   await loadConfig(selectedWarehouseId.value)
 })
@@ -81,7 +76,7 @@ async function loadConfig(warehouseId: string) {
     const res = await settingsApi.getAlerts(warehouseId)
     config.value = res.data.data ?? null
     if (config.value?.warehouseId) {
-      selectedWarehouseId.value = (config.value.warehouseId as 'DE' | 'ON')
+      selectedWarehouseId.value = config.value.warehouseId as 'DE' | 'ON'
     }
   } finally {
     loading.value = false
@@ -116,10 +111,6 @@ async function save() {
     saving.value = false
   }
 }
-
-function monitorTypeLabel(t: string) {
-  return { outbound: '出库', inbound: '到仓不齐', shelving: '上架' }[t] ?? t
-}
 </script>
 
 <template>
@@ -148,12 +139,30 @@ function monitorTypeLabel(t: string) {
             />
           </el-select>
         </div>
+        <div class="field-row">
+          <label>仓库工作时间</label>
+          <div class="time-range">
+            <el-time-picker
+              v-model="config.workingHours.startTime"
+              value-format="HH:mm"
+              format="HH:mm"
+              style="width: 120px"
+            />
+            <span>-</span>
+            <el-time-picker
+              v-model="config.workingHours.endTime"
+              value-format="HH:mm"
+              format="HH:mm"
+              style="width: 120px"
+            />
+          </div>
+        </div>
       </div>
     </div>
+
     <div class="section-card">
       <div class="section-title">出库时效规则配置（仓库当地时间）</div>
       <div class="field-grid">
-        
         <div class="field-row">
           <label>冬令时截单时间</label>
           <el-time-picker
@@ -184,6 +193,52 @@ function monitorTypeLabel(t: string) {
         <div v-if="outboundLeadTime" class="field-row">
           <label>出库预警提前量（小时）</label>
           <el-input-number v-model="outboundLeadTime.leadTimeHours" :min="1" :max="72" size="small" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">上架时效规则配置（仓库当地时间）</div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>上架超时时间</label>
+          <el-time-picker
+            v-model="config.shelvingRule.overdueTime"
+            value-format="HH:mm"
+            format="HH:mm"
+            style="width: 160px"
+          />
+        </div>
+        <div class="field-row">
+          <label>上架预警提前量（小时）</label>
+          <el-input-number v-model="config.shelvingRule.warningLeadHours" :min="1" :max="72" size="small" />
+        </div>
+        <div class="field-row">
+          <label>上架时效要求（天）</label>
+          <el-input-number v-model="config.shelvingRule.slaDays" :min="1" :max="30" size="small" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">到仓不齐时效规则配置（仓库当地时间）</div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>到仓不齐超时时间</label>
+          <el-time-picker
+            v-model="config.inboundIncompleteRule.overdueTime"
+            value-format="HH:mm"
+            format="HH:mm"
+            style="width: 160px"
+          />
+        </div>
+        <div class="field-row">
+          <label>到仓不齐预警提前量（小时）</label>
+          <el-input-number v-model="config.inboundIncompleteRule.warningLeadHours" :min="1" :max="72" size="small" />
+        </div>
+        <div class="field-row">
+          <label>到仓不齐时效要求（天）</label>
+          <el-input-number v-model="config.inboundIncompleteRule.slaDays" :min="1" :max="30" size="small" />
         </div>
       </div>
     </div>
@@ -221,26 +276,6 @@ function monitorTypeLabel(t: string) {
               >{{ holiday }}</el-tag>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">提前预警时长（小时）</div>
-      <div class="field-grid">
-        <div v-for="lt in otherLeadTimes" :key="lt.monitorType" class="field-row">
-          <label>{{ monitorTypeLabel(lt.monitorType) }}</label>
-          <el-input-number v-model="lt.leadTimeHours" :min="1" :max="72" size="small" />
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">严重告警阈值</div>
-      <div class="field-grid">
-        <div v-for="st in config.severityThresholds" :key="st.monitorType + st.metricCode" class="field-row">
-          <label>{{ monitorTypeLabel(st.monitorType) }} — {{ st.metricCode }}</label>
-          <el-input-number v-model="st.thresholdValue" :min="1" size="small" />
         </div>
       </div>
     </div>
@@ -313,6 +348,7 @@ function monitorTypeLabel(t: string) {
 }
 .field-row label { width: 180px; flex-shrink: 0; }
 
+.time-range { display: flex; align-items: center; gap: 8px; }
 .holiday-row { align-items: flex-start; }
 .holiday-editor { display: flex; flex-direction: column; gap: 8px; }
 .holiday-tools { display: flex; align-items: center; gap: 8px; }

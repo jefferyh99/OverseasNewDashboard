@@ -13,16 +13,16 @@ public class OutboundDeadlineCalculatorTests
         store.Save(new SaveAlertsConfigRequest(
             WarehouseId: "DE",
             TimeZoneId: "Europe/Berlin",
+            WorkingHours: new("08:00", "17:00"),
             WeekendDays: ["Saturday", "Sunday"],
             HolidayDates: ["2026-01-01"],
             LeadTimes:
             [
                 new("outbound", 2),
-                new("inbound", 12),
-                new("shelving", 12),
             ],
             OutboundRule: new("16:00", "15:00", "18:00"),
-            SeverityThresholds: [new("outbound", "overdue-count", 20)],
+            ShelvingRule: new("17:00", 12, 3),
+            InboundIncompleteRule: new("17:00", 12, 3),
             Receivers: new(["u001"], ["g001"], ["ops@example.com"]),
             Channels: [new("wechat", true), new("email", true)]));
 

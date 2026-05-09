@@ -10,6 +10,7 @@ export const menuPermissions = {
   anomalyInbound: 'anomaly-inbound',
   anomalyShelving: 'anomaly-shelving',
   settingsAlerts: 'settings-alerts',
+  prototypeWecomNotification: 'prototype-wecom-notification',
 } as const
 
 export const buttonPermissions = {

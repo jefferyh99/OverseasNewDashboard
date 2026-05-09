@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企业微信消息线框原型-德国仓-5.4</title>
+  <style>
+    :root {
+      --bg: #f2f3f5;
+      --phone: #f7f8fa;
+      --card: #ffffff;
+      --text: #1f2329;
+      --muted: #8b949e;
+      --line: #e7e9ee;
+      --red: #d03050;
+      --orange: #e67e22;
+      --tag-bg: #eef4ff;
+      --tag-text: #2f5ea9;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .phone {
+      width: 420px;
+      max-width: 100%;
+      background: var(--phone);
+      border: 1px solid #d8dce3;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(20, 25, 36, 0.15);
+    }
+
+    .topbar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .chat {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .time {
+      align-self: center;
+      font-size: 12px;
+      color: var(--muted);
+      background: #ebedf1;
+      border-radius: 10px;
+      padding: 3px 10px;
+    }
+
+    .msg {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .msg-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .msg-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .tag {
+      flex-shrink: 0;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #d8e6ff;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #2b3138;
+    }
+
+    .red { color: var(--red); font-weight: 700; }
+    .orange { color: var(--orange); font-weight: 700; }
+
+    .inputbar {
+      height: 54px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+      color: #b0b7c3;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="topbar">海外仓监控机器人-DE</div>
+    <div class="chat">
+      <div class="time">2026-05-11 周一</div>
+
+      <section class="msg">
+        <div class="msg-head">
+          <div class="msg-title">[工作看板 | 德国仓 | 08:00 | 2026-05-11]</div>
+          <span class="tag">模板5.4示例</span>
+        </div>
+        <pre>今日重点：先看超时，再看今日出库、上架、到仓总量
+
+一、已超时待处理任务 总 <span class="red">18</span>
+出库 <span class="red">7</span>，上架 <span class="red">6</span>，到仓 <span class="red">5</span>
+
+二、今天待处理任务
+1) 今天待出库包裹 总 1260 包裹
+按发货规则Top5：
+B2C标准 420，
+FBA转运 300，
+B2B批发 230，
+加急件 190，
+同城转运 120
+
+2) 今天待上架SKU 总 8450 件
+按客户Top5：
+客户A 2300，
+客户B 1900，
+客户C 1600，
+客户D 1450，
+客户E 1200
+
+3) 今天待到仓箱子 总 780 箱 / 25400 kg / 112.6 m3
+海运 320 / 12300 / 58.2
+空运 180 / 4200 / 16.8
+快递 210 / 3600 / 14.1
+卡派 70 / 5300 / 23.5
+
+三、明天待处理任务
+1) 明天待到仓箱子 总 920 箱 / 30100 kg / 134.9 m3
+海运 410 / 15800 / 72.0
+空运 210 / 4900 / 19.7
+快递 220 / 3800 / 15.2
+卡派 80 / 5600 / 28.0</pre>
+      </section>
+
+      <section class="msg">
+        <div class="msg-head">
+          <div class="msg-title">[工作看板 | 德国仓 | 12:00 | 2026-05-11]</div>
+          <span class="tag">模板5.4示例</span>
+        </div>
+        <pre>上午进度：超时 <span class="orange">-3</span>，出库待处理 -280，上架待处理 -740，到仓待处理 -96
+
+一、较08:00进度
+超时待处理：当前 <span class="red">15</span>，较08:00 -3
+待出库包裹：当前 980，较08:00 -280
+待上架SKU：当前 7710，较08:00 -740
+待到仓箱子：当前 684，较08:00 -96
+
+二、当前堵点明细
+1) 超时任务：
+出库 7，
+上架 5，
+到仓不齐 3
+
+2) 待出库：总 1260 包裹
+按发货规则Top5：
+B2C标准 420，
+FBA转运 300，
+B2B批发 230，
+加急件 190，
+同城转运 120
+
+3) 待上架：总 8450 件
+按客户Top5：
+客户A 2300，
+客户B 1900，
+客户C 1600，
+客户D 1450，
+客户E 1200
+
+4) 待到仓箱子：总 780 箱
+海运 已180箱 待140箱；
+空运 已110 待70；
+快递 已105 待105；
+卡派 已25 待45
+
+三、明日预告
+明天待到仓：
+920 箱 / 30100 kg / 134.9 m3
+海运 410 / 15800 / 72.0，
+空运 210 / 4900 / 19.7，
+快递 220 / 3800 / 15.2，
+卡派 80 / 5600 / 28.0</pre>
+      </section>
+
+      <section class="msg">
+        <div class="msg-head">
+          <div class="msg-title">[异常看板 | 德国仓 | 即将超时提醒 | 2026-05-11 10:30]</div>
+          <span class="tag">模板5.4示例</span>
+        </div>
+        <pre>触发方式：按德国仓配置的即将超时规则触发
+
+一、即将超时汇总
+包裹出库异常 <span class="orange">24</span> 个
+SKU上架异常 <span class="orange">38</span> 件
+入库单箱子到仓不齐 <span class="orange">16</span> 箱
+
+二、异常分布明细
+1) 待包裹出库
+按发货规则Top5：
+B2C标准 4，
+FBA转运 3，
+B2B批发 2，
+加急件 1，
+同城转运 120
+
+2) 待SKU上架
+按客户Top5：
+客户A 2，
+客户B 1，
+客户C 1，
+客户D 1，
+客户E 1
+
+3) 待到仓箱子
+海运 已180箱 待1箱；
+空运 已110 待7；
+快递 已105 待1；
+卡派 已25 待4
+
+三、提醒
+以上任务已接近超时，请仓库优先安排处理。</pre>
+      </section>
+
+      <section class="msg">
+        <div class="msg-head">
+          <div class="msg-title">[异常看板 | 德国仓 | 已超时提醒 | 2026-05-11 11:45]</div>
+          <span class="tag">模板5.4示例</span>
+        </div>
+        <pre>触发方式：按德国仓配置的已超时规则触发
+
+一、已超时汇总
+包裹出库异常 <span class="red">11</span> 个
+SKU上架异常 <span class="red">14</span> 件
+入库单箱子到仓不齐 <span class="red">8</span> 箱
+
+二、异常分布明细
+1) 待包裹出库：
+按发货规则Top5：
+B2C标准 4，
+FBA转运 3，
+B2B批发 2，
+加急件 1，
+同城转运 1
+
+2) 待SKU上架：
+按客户Top5：
+客户A 2，
+客户B 1，
+客户C 1，
+客户D 1，
+客户E 1
+
+3) 待到仓箱子：
+海运 已180箱 待1箱；
+空运 已110 待7；
+快递 已105 待1；
+卡派 已25 待4
+
+三、提醒
+以上任务已超时，请仓库尽快处理并持续关注后续新增异常。</pre>
+      </section>
+    </div>
+    <div class="inputbar">输入消息…</div>
+  </div>
+</body>
+</html>

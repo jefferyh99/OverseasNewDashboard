@@ -7,6 +7,7 @@ import OutboundView from '@/modules/anomalies/views/OutboundView.vue'
 import InboundView from '@/modules/anomalies/views/InboundView.vue'
 import ShelvingView from '@/modules/anomalies/views/ShelvingView.vue'
 import AlertsConfigView from '@/modules/settings/views/AlertsConfigView.vue'
+import WecomNotificationPrototypeView from '@/modules/prototypes/views/WecomNotificationPrototypeView.vue'
 import WorkloadDashboardView from '@/modules/workload/views/WorkloadDashboardView.vue'
 import OutboundPackagesDetailView from '@/modules/workload/views/OutboundPackagesDetailView.vue'
 import SkuDetailView from '@/modules/workload/views/SkuDetailView.vue'
@@ -94,6 +95,12 @@ export const routes: RouteRecordRaw[] = [
         name: 'settings-alerts',
         component: AlertsConfigView,
         meta: { title: '提醒配置', permission: 'settings-alerts', groupTitle: '系统设置', requiresAuth: true },
+      },
+      {
+        path: 'prototypes/wecom-notification',
+        name: 'prototype-wecom-notification',
+        component: WecomNotificationPrototypeView,
+        meta: { title: '企微通知原型', permission: 'prototype-wecom-notification', groupTitle: '原型', requiresAuth: true },
       },
     ],
   },

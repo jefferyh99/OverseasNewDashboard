@@ -430,14 +430,27 @@ export interface OutboundRuleConfig {
   overdueTime: string
 }
 
+export interface WarehouseWorkingHoursConfig {
+  startTime: string
+  endTime: string
+}
+
+export interface TimelinessRuleConfig {
+  overdueTime: string
+  warningLeadHours: number
+  slaDays: number
+}
+
 export interface AlertsConfigData {
   warehouseId: string
   timeZoneId: string
+  workingHours: WarehouseWorkingHoursConfig
   weekendDays: string[]
   holidayDates: string[]
   leadTimes: LeadTimeConfig[]
   outboundRule: OutboundRuleConfig
-  severityThresholds: SeverityThreshold[]
+  shelvingRule: TimelinessRuleConfig
+  inboundIncompleteRule: TimelinessRuleConfig
   receivers: AlertReceivers
   channels: AlertChannelConfig[]
   updatedAt: string

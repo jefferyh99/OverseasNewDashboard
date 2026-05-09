@@ -1,0 +1,108 @@
+工作看板企业微信文字模板（工作日）
+
+一、发送时段
+1. 上班前：当地时间 08:00
+2. 中午跟进：当地时间 12:00
+
+二、通用排版规则（仅文字）
+1. 固定顺序：已超时待处理任务 -> 今天待处理任务 -> 明天待处理任务。
+2. 每个模块先写汇总，再写分组明细。
+3. 所有数字必须带单位：包裹 / 件 / 箱 / kg / m3。
+4. 无数据时显示 0，不留空。
+5. 已超时待处理任务按 Top3 展示。
+6. 今天待出库包裹按发货规则展示 Top5。
+7. 今天待上架 SKU 按客户展示 Top5。
+8. 今天待到仓箱子、明天待到仓箱子均展示全部货运方式。
+9. 每条消息标题包含：仓库、日期、发送时段。
+
+三、08:00 发送模板（开工基线版）
+【工作看板 | {仓库名称} | 08:00 | {日期}】
+今日重点：先看超时，再看今日出库、上架、到仓总量
+
+一、已超时待处理任务
+总 {overdue_total}
+出库 {overdue_outbound}，上架 {overdue_putaway}，到仓 {overdue_inbound}
+
+二、今天待处理任务
+1) 今天待出库包裹
+总 {today_outbound_total} 包裹
+按发货规则 Top5：
+{shipping_rule_1} {count_1} 包裹，
+{shipping_rule_2} {count_2} 包裹，
+{shipping_rule_3} {count_3} 包裹，
+{shipping_rule_4} {count_4} 包裹，
+{shipping_rule_5} {count_5} 包裹
+
+2) 今天待上架 SKU
+总 {today_putaway_total} 件
+按客户 Top5：
+{customer_1} {sku_count_1} 件，
+{customer_2} {sku_count_2} 件，
+{customer_3} {sku_count_3} 件，
+{customer_4} {sku_count_4} 件，
+{customer_5} {sku_count_5} 件
+
+3) 今天待到仓箱子
+总 {today_inbound_total_box} 箱 / {today_inbound_total_weight} kg / {today_inbound_total_volume} m3
+按货运方式：
+海运 {sea_box} 箱 / {sea_weight} kg / {sea_volume} m3
+空运 {air_box} 箱 / {air_weight} kg / {air_volume} m3
+快递 {express_box} 箱 / {express_weight} kg / {express_volume} m3
+卡派 {truck_box} 箱 / {truck_weight} kg / {truck_volume} m3
+
+三、明天待处理任务
+1) 明天待到仓箱子
+总 {tomorrow_inbound_total_box} 箱 / {tomorrow_inbound_total_weight} kg / {tomorrow_inbound_total_volume} m3
+按货运方式：
+海运 {tomorrow_sea_box} 箱 / {tomorrow_sea_weight} kg / {tomorrow_sea_volume} m3
+空运 {tomorrow_air_box} 箱 / {tomorrow_air_weight} kg / {tomorrow_air_volume} m3
+快递 {tomorrow_express_box} 箱 / {tomorrow_express_weight} kg / {tomorrow_express_volume} m3
+卡派 {tomorrow_truck_box} 箱 / {tomorrow_truck_weight} kg / {tomorrow_truck_volume} m3
+
+四、12:00 发送模板（进度跟进版）
+【工作看板 | {仓库名称} | 12:00 | {日期}】
+上午进度：超时 {overdue_delta_text}，出库待处理 {outbound_delta_text}，上架待处理 {putaway_delta_text}，到仓待处理 {inbound_delta_text}
+
+一、较 08:00 进度
+超时待处理：当前 {overdue_total_now}，较 08:00 {overdue_delta}
+待出库包裹：当前 {today_outbound_todo_now} 包裹，较 08:00 {today_outbound_todo_delta}
+待上架 SKU：当前 {today_putaway_todo_now} 件，较 08:00 {today_putaway_todo_delta} 件
+待到仓箱子：当前 {today_inbound_todo_box_now} 箱，较 08:00 {today_inbound_todo_box_delta} 箱
+
+二、当前堵点明细
+1) 超时任务 
+{overdue_type_1} {overdue_count_1_now}
+{overdue_type_2} {overdue_count_2_now}
+{overdue_type_3} {overdue_count_3_now}
+
+2) 待出库
+总 {today_outbound_total}
+按发货规则 Top5
+{shipping_rule_1} {count_1_now} 包裹，
+{shipping_rule_2} {count_2_now} 包裹，
+{shipping_rule_3} {count_3_now} 包裹，
+{shipping_rule_4} {count_4_now} 包裹，
+{shipping_rule_5} {count_5_now} 包裹
+
+3) 待上架
+总 {today_putaway_total} 件
+按客户 Top5
+{customer_1} {sku_count_1_now} 件，
+{customer_2} {sku_count_2_now} 件，
+{customer_3} {sku_count_3_now} 件，
+{customer_4} {sku_count_4_now} 件，
+{customer_5} {sku_count_5_now} 件
+
+4) 待到仓按货运方式
+海运 已 {sea_done_box} 箱 / {sea_done_weight} kg / {sea_done_volume} m3，待 {sea_todo_box} 箱 / {sea_todo_weight} kg / {sea_todo_volume} m3
+空运 已 {air_done_box} 箱 / {air_done_weight} kg / {air_done_volume} m3，待 {air_todo_box} 箱 / {air_todo_weight} kg / {air_todo_volume} m3
+快递 已 {express_done_box} 箱 / {express_done_weight} kg / {express_done_volume} m3，待 {express_todo_box} 箱 / {express_todo_weight} kg / {express_todo_volume} m3
+卡派 已 {truck_done_box} 箱 / {truck_done_weight} kg / {truck_done_volume} m3，待 {truck_todo_box} 箱 / {truck_todo_weight} kg / {truck_todo_volume} m3
+
+三、明天预告
+明天待到仓：总 {tomorrow_inbound_total_box} 箱 / {tomorrow_inbound_total_weight} kg / {tomorrow_inbound_total_volume} m3
+按货运方式：
+海运 {tomorrow_sea_box} 箱 / {tomorrow_sea_weight} kg / {tomorrow_sea_volume} m3
+空运 {tomorrow_air_box} 箱 / {tomorrow_air_weight} kg / {tomorrow_air_volume} m3
+快递 {tomorrow_express_box} 箱 / {tomorrow_express_weight} kg / {tomorrow_express_volume} m3
+卡派 {tomorrow_truck_box} 箱 / {tomorrow_truck_weight} kg / {tomorrow_truck_volume} m3
