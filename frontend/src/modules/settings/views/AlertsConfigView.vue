@@ -129,7 +129,7 @@ function monitorTypeLabel(t: string) {
 
   <div v-else-if="config" class="settings-page">
     <div class="section-card">
-      <div class="section-title">仓库配置</div>
+      <div class="section-title">仓库基础信息</div>
       <div class="field-grid">
         <div class="field-row">
           <label>仓库</label>
@@ -137,12 +137,6 @@ function monitorTypeLabel(t: string) {
             <el-option v-for="item in warehouseOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">出库规则配置</div>
-      <div class="field-grid">
         <div class="field-row">
           <label>仓库时区</label>
           <el-select v-model="config.timeZoneId" filterable style="width: 320px">
@@ -154,6 +148,12 @@ function monitorTypeLabel(t: string) {
             />
           </el-select>
         </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">出库时效规则配置（仓库当地时间）</div>
+      <div class="field-grid">
+        
         <div class="field-row">
           <label>冬令时截单时间</label>
           <el-time-picker
@@ -173,7 +173,7 @@ function monitorTypeLabel(t: string) {
           />
         </div>
         <div class="field-row">
-          <label>超时时点</label>
+          <label>出库超时时间</label>
           <el-time-picker
             v-model="config.outboundRule.overdueTime"
             value-format="HH:mm"
